@@ -58,11 +58,25 @@ defmodule CodeAdvent2024 do
 
     listLength = Enum.count(list) -1
 
-    case deltasSign |> Enum.count(fn x -> x end) do
+    case deltasSign |> Enum.count(&Function.identity/1) do
      x when x == listLength or x == 0 -> allLessThanFourAndNotZero
       _ -> false
     end
   end
 
+  #day 3
+
+  #find all of the form mul(x,y) , multiply x*y for each and sum all occurances
+  def findAndMultiplySum(input) do
+    CodeAdvent2024.getValidMuls(input) |> Enum.map(fn x -> Enum.at(x,0) * Enum.at(x,1) end) |> Enum.sum()
+  end
+
+  def getValidMuls(input) do
+
+    Regex.scan(~r/mul\(\d+,\d+\)/, input)
+    |> List.flatten
+    |> Enum.map(fn x -> List.flatten(Regex.scan(~r/\d+/,x)) |> Enum.map(&String.to_integer/1) end)
+    #|> IO.inspect(charlists: :as_lists)
+  end
 
 end

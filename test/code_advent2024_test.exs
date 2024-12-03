@@ -22,7 +22,14 @@ defmodule CodeAdvent2024Test do
       {[8,6,4,4,1],true},
       {[1,3,6,7,9],true},
     ]
-    {:ok, day1Part1Test: day1Part1Test, day2Part1Test: day2Part1Test, day2Part2Test: day2Part2Test}
+
+    day3Part1Test = %{
+      "input" => "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))",
+      "muls" => [[2,4],[5,5],[11,8],[8,5]],
+      "final" => 161
+    }
+
+    {:ok, day1Part1Test: day1Part1Test, day2Part1Test: day2Part1Test, day2Part2Test: day2Part2Test, day3Part1Test: day3Part1Test}
   end
 
   test "test day 1 distance between lists", context do
@@ -47,6 +54,14 @@ defmodule CodeAdvent2024Test do
   test "test day 2 part 2 total safe", context do
     testList = Enum.map(context[:day2Part2Test], fn {list,_} -> list end)
     assert CodeAdvent2024.determineTotalSafetyWithDampening(testList) == 4
+  end
+
+  test "test day 3 part 1 get valids", context do
+    assert CodeAdvent2024.getValidMuls(context[:day3Part1Test]["input"]) == context[:day3Part1Test]["muls"]
+  end
+
+  test "test day 3 part 1 total", context do
+    assert CodeAdvent2024.findAndMultiplySum(context[:day3Part1Test]["input"]) == context[:day3Part1Test]["final"]
   end
 
 end

@@ -51,4 +51,10 @@ defmodule CodeAdvent2024Run do
     IO.puts "d2p2 answer: #{CodeAdvent2024.determineTotalSafetyWithDampening(input)}"
   end
 
+  #@tag :skip
+  test "day 3 part 1" do
+    day3Path = File.cwd!()<>"/test/resources/day3.txt"
+    IO.puts "d3p1 answer: #{CodeAdvent2024.findAndMultiplySum(File.read!(day3Path))}"
+  end
+
 end
