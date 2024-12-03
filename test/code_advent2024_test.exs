@@ -26,10 +26,22 @@ defmodule CodeAdvent2024Test do
     day3Part1Test = %{
       "input" => "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))",
       "muls" => [[2,4],[5,5],[11,8],[8,5]],
-      "final" => 161
+      "final" => 161,
+      "muls_2" => [[2,4],[8,5]],
+      "final_2" => 48
+    }
+    day3Part2Test = %{
+      "input" => "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))",
+      "muls" => [[2,4],[8,5]],
+      "final" => 48,
     }
 
-    {:ok, day1Part1Test: day1Part1Test, day2Part1Test: day2Part1Test, day2Part2Test: day2Part2Test, day3Part1Test: day3Part1Test}
+    {:ok,
+    day1Part1Test: day1Part1Test,
+    day2Part1Test: day2Part1Test,
+    day2Part2Test: day2Part2Test,
+    day3Part1Test: day3Part1Test,
+    day3Part2Test: day3Part2Test}
   end
 
   test "test day 1 distance between lists", context do
@@ -62,6 +74,14 @@ defmodule CodeAdvent2024Test do
 
   test "test day 3 part 1 total", context do
     assert CodeAdvent2024.findAndMultiplySum(context[:day3Part1Test]["input"]) == context[:day3Part1Test]["final"]
+  end
+
+  test "test day 3 part 2 get valids", context do
+    assert CodeAdvent2024.getValidMulsWithToggle(context[:day3Part2Test]["input"]) == context[:day3Part2Test]["muls"]
+  end
+
+  test "test day 3 part 2 total", context do
+    assert CodeAdvent2024.findAndMultiplySumWithToggle(context[:day3Part2Test]["input"]) == context[:day3Part2Test]["final"]
   end
 
 end

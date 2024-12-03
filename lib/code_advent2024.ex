@@ -79,4 +79,16 @@ defmodule CodeAdvent2024 do
     #|> IO.inspect(charlists: :as_lists)
   end
 
+  def findAndMultiplySumWithToggle(input) do
+    CodeAdvent2024.getValidMulsWithToggle(input) |> Enum.map(fn x -> Enum.at(x,0) * Enum.at(x,1) end) |> Enum.sum()
+  end
+
+  def getValidMulsWithToggle(input) do
+    mulDoDontStr = Regex.scan(~r/mul\(\d+,\d+\)|do\(\)|don't\(\)/, input)
+    |> List.flatten
+    #oh this is funny - just make new string and remove everything inbetween don't()..do() (and account for don't()..EOF)
+    |> Enum.join("")
+    CodeAdvent2024.getValidMuls(Regex.replace(~r/don't\(\).*?do\(\)|don't\(\).*(?:(?!do\(\)))/,mulDoDontStr,""))
+  end
+
 end
