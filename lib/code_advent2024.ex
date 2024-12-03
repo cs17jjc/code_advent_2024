@@ -76,7 +76,6 @@ defmodule CodeAdvent2024 do
     Regex.scan(~r/mul\(\d+,\d+\)/, input)
     |> List.flatten
     |> Enum.map(fn x -> List.flatten(Regex.scan(~r/\d+/,x)) |> Enum.map(&String.to_integer/1) end)
-    #|> IO.inspect(charlists: :as_lists)
   end
 
   def findAndMultiplySumWithToggle(input) do
