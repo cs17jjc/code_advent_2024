@@ -90,4 +90,56 @@ defmodule CodeAdvent2024 do
     CodeAdvent2024.getValidMuls(Regex.replace(~r/don't\(\).*?do\(\)|don't\(\).*(?:(?!do\(\)))/,mulDoDontStr,""))
   end
 
+  #day 4
+
+  def countXmasOccurances(input) do
+    split = String.split(input, "\n", trim: true)
+    lineLen = String.length(Enum.at(split,0))
+
+    combined = Enum.join(split,"")
+
+    regexs = ["XMAS",
+    "SAMX",
+    #Downwards - chars len-1 apart
+    "X(?=.{#{lineLen-1}}M.{#{lineLen-1}}A.{#{lineLen-1}}S)",
+    "S(?=.{#{lineLen-1}}A.{#{lineLen-1}}M.{#{lineLen-1}}X)",
+
+    #Right
+    "X(?=.{#{lineLen}}M.{#{lineLen}}A.{#{lineLen}}S)",
+    "S(?=.{#{lineLen}}A.{#{lineLen}}M.{#{lineLen}}X)",
+
+    #Left
+    "X(?=.{#{lineLen-2}}M.{#{lineLen-2}}A.{#{lineLen-2}}S)",
+    "S(?=.{#{lineLen-2}}A.{#{lineLen-2}}M.{#{lineLen-2}}X)",
+
+  ]
+
+  regexs |> Enum.map(&Regex.compile!/1) |> Enum.map(fn regex -> Enum.count(Regex.scan(regex,combined, trim: true) |> List.flatten ) end) |> Enum.sum
+
+  end
+
+  def countCrossMASOccurances(input) do
+    split = String.split(input, "\n", trim: true)
+    lineLen = String.length(Enum.at(split,0))
+
+
+    combined = Enum.join(split," ")
+    #okay so it just so happened that this worked
+    #space needed to prevent false positives when a match is found but spans a line break
+    # i.e
+    #...M.
+    #S....
+    #Without something to indicate a line break,
+    #the M.S would match (obvs only if the other following chars were in right position as well)
+
+    regexs = [
+    "M(?=.S.{#{lineLen-1}}A.{#{lineLen-1}}M.S)",
+    "M(?=.M.{#{lineLen-1}}A.{#{lineLen-1}}S.S)",
+    "S(?=.S.{#{lineLen-1}}A.{#{lineLen-1}}M.M)",
+    "S(?=.M.{#{lineLen-1}}A.{#{lineLen-1}}S.M)",
+    ] |> Enum.join("|")
+
+    Enum.count(Regex.scan(Regex.compile!(regexs),combined))
+  end
+
 end

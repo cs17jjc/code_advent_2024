@@ -36,12 +36,28 @@ defmodule CodeAdvent2024Test do
       "final" => 48,
     }
 
+    day4Test = %{
+      "input" => "MMMSXXMASM
+MSAMXMSMSA
+AMXSXMAAMM
+MSAMASMSMX
+XMASAMXAMM
+XXAMMXXAMA
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX",
+      "final" => 18,
+      "final2" => 9,
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
     day2Part2Test: day2Part2Test,
     day3Part1Test: day3Part1Test,
-    day3Part2Test: day3Part2Test}
+    day3Part2Test: day3Part2Test,
+    day4Test: day4Test,}
   end
 
   test "test day 1 distance between lists", context do
@@ -82,6 +98,14 @@ defmodule CodeAdvent2024Test do
 
   test "test day 3 part 2 total", context do
     assert CodeAdvent2024.findAndMultiplySumWithToggle(context[:day3Part2Test]["input"]) == context[:day3Part2Test]["final"]
+  end
+
+  test "test day 4 part 1 total", context do
+    assert CodeAdvent2024.countXmasOccurances(context[:day4Test]["input"]) == context[:day4Test]["final"]
+  end
+
+  test "test day 4 part 2 total", context do
+    assert CodeAdvent2024.countCrossMASOccurances(context[:day4Test]["input"]) == context[:day4Test]["final2"]
   end
 
 end

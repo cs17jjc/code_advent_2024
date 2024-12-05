@@ -57,10 +57,22 @@ defmodule CodeAdvent2024Run do
     IO.puts "d3p1 answer: #{CodeAdvent2024.findAndMultiplySum(File.read!(day3Path))}"
   end
 
-  #@tag :skip
+  @tag :skip
   test "day 3 part 2" do
     day3Path = File.cwd!()<>"/test/resources/day3.txt"
     IO.puts "d3p2 answer: #{CodeAdvent2024.findAndMultiplySumWithToggle(File.read!(day3Path))}"
+  end
+
+  @tag :skip
+  test "day 4 part 1" do
+    day4Path = File.cwd!()<>"/test/resources/day4.txt"
+    IO.puts "d4p1 answer: #{CodeAdvent2024.countXmasOccurances(File.read!(day4Path))}"
+  end
+
+  @tag :skip
+  test "day 4 part 2" do
+    day4Path = File.cwd!()<>"/test/resources/day4.txt"
+    IO.puts "d4p2 answer: #{CodeAdvent2024.countCrossMASOccurances(File.read!(day4Path))}"
   end
 
 end
