@@ -95,12 +95,11 @@ defmodule CodeAdvent2024 do
   def countXmasOccurances(input) do
     split = String.split(input, "\n", trim: true)
     lineLen = String.length(Enum.at(split,0))
-
     combined = Enum.join(split,"")
 
     regexs = ["XMAS",
     "SAMX",
-    #Downwards - chars len-1 apart
+    #Downwards
     "X(?=.{#{lineLen-1}}M.{#{lineLen-1}}A.{#{lineLen-1}}S)",
     "S(?=.{#{lineLen-1}}A.{#{lineLen-1}}M.{#{lineLen-1}}X)",
 
@@ -112,17 +111,15 @@ defmodule CodeAdvent2024 do
     "X(?=.{#{lineLen-2}}M.{#{lineLen-2}}A.{#{lineLen-2}}S)",
     "S(?=.{#{lineLen-2}}A.{#{lineLen-2}}M.{#{lineLen-2}}X)",
 
-  ]
+  ] |> Enum.map(&Regex.compile!/1)
 
-  regexs |> Enum.map(&Regex.compile!/1) |> Enum.map(fn regex -> Enum.count(Regex.scan(regex,combined, trim: true) |> List.flatten ) end) |> Enum.sum
+  regexs |> Enum.map(fn regex -> Enum.count(Regex.scan(regex,combined) ) end) |> Enum.sum
 
   end
 
   def countCrossMASOccurances(input) do
     split = String.split(input, "\n", trim: true)
     lineLen = String.length(Enum.at(split,0))
-
-
     combined = Enum.join(split," ")
     #okay so it just so happened that this worked
     #space needed to prevent false positives when a match is found but spans a line break
@@ -137,9 +134,9 @@ defmodule CodeAdvent2024 do
     "M(?=.M.{#{lineLen-1}}A.{#{lineLen-1}}S.S)",
     "S(?=.S.{#{lineLen-1}}A.{#{lineLen-1}}M.M)",
     "S(?=.M.{#{lineLen-1}}A.{#{lineLen-1}}S.M)",
-    ] |> Enum.join("|")
+    ] |> Enum.join("|") |> Regex.compile!
 
-    Enum.count(Regex.scan(Regex.compile!(regexs),combined))
+    Enum.count(Regex.scan(regexs,combined))
   end
 
 end
