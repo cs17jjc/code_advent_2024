@@ -142,15 +142,25 @@ defmodule CodeAdvent2024 do
 
   #day 5
 
-  def sumOfCorrectUpdateMiddles(input) do
-    {rulesMap,updates} = parseDay5Input(input)
+  def parseDay5Input(input) do
+    #get rules map number -> [numbers that aren't allowed to appear before]
+    #and get list of updates [[a,b,c,...],...]
+    splitInput = Regex.split(~r/\n\n/s, Regex.replace(~r/\r/,input,""), trim: true)
+   {createRulesMapFromPairs(Enum.at(splitInput,0)),createUpdates(Enum.at(splitInput,1))}
+  end
 
-    #filter updates for only correct
-    updates
-    |> Enum.filter(fn update -> recursiveCheck(update,[],rulesMap) end)
-    |> Enum.map(fn correctUpdate -> Enum.at(correctUpdate,round(Enum.count(correctUpdate)/2)-1) end)
-    |> Enum.sum
+  def createUpdates(updates) do
+    Regex.split(~r/\n/,updates, trim: true) |> Enum.map(fn x -> Regex.split(~r/\,/,x) |> Enum.map(&String.to_integer/1) end)
+  end
 
+  def createRulesMapFromPairs(rules) do
+    abPairs = Regex.scan(~r/(\d+)\|(\d+)/,rules, capture: :all_but_first) |> Enum.map(fn x -> Enum.map(x,&String.to_integer/1) end)
+
+    uniqueBs = abPairs |> Enum.map(fn x -> Enum.at(x,0) end) |> Enum.uniq
+
+    cannotBeBeforeUniqueBs = uniqueBs |> Enum.map(fn b -> Enum.filter(abPairs, fn pair -> Enum.at(pair,0) == b end) |> Enum.map(fn x -> Enum.at(x,1) end) end)
+
+    Map.new(Enum.zip(uniqueBs,cannotBeBeforeUniqueBs))
   end
 
   def recursiveCheck([head | tail], acc, rulesMap) do
@@ -171,27 +181,55 @@ defmodule CodeAdvent2024 do
     true #reached end of list without breaking a rule obviously
   end
 
-  def parseDay5Input(input) do
-    #get rules map number -> [numbers that aren't allowed to appear before]
-    #and get list of updates [[a,b,c,...],...]
+  def sumOfCorrectUpdateMiddles(input) do
+    {rulesMap,updates} = parseDay5Input(input)
+    #filter updates for only correct
+    updates
+    |> Enum.filter(fn update -> recursiveCheck(update,[],rulesMap) end)
+    |> Enum.map(fn correctUpdate -> Enum.at(correctUpdate,round(Enum.count(correctUpdate)/2)-1) end)
+    |> Enum.sum
+  end
 
-    splitInput = Regex.split(~r/\n\n/s, Regex.replace(~r/\r/,input,""), trim: true)
+  def sumOfFixedUpdatesMiddles(input) do
+    {rulesMap,updates} = parseDay5Input(input)
+    updates
+    |> Enum.filter(fn update -> !recursiveCheck(update,[],rulesMap) end)
+    |> Enum.map(fn update -> fixOrder(rulesMap,update) end)
+    |> Enum.map(fn fixedUpdate -> Enum.at(fixedUpdate,round(Enum.count(fixedUpdate)/2)-1) end)
+    |> Enum.sum
+  end
 
+  def fixOrder(rulesForUpdate, update) do
+    {status,index1,index2} = findFirstViolatingIndexes(update,[],rulesForUpdate)
+    if status == :found do
+      a = Enum.at(update,index1)
+      b = Enum.at(update,index2)
+      newUpdate = List.replace_at(update,index1,b) |> List.replace_at(index2,a)
+      fixOrder(rulesForUpdate,newUpdate)
+    else
+      update
+    end
+  end
 
-    abPairs = Regex.scan(~r/(\d+)\|(\d+)/,Enum.at(splitInput,0), capture: :all_but_first) |> Enum.map(fn x -> Enum.map(x,&String.to_integer/1) end) |> Enum.map(&Enum.reverse/1)
-    #construct some kind of dictionary, where key is number to check and value is list of number that cannot be before it
-    #that way, when scanning through an update, can just look at number and check if subset of numbers before it contain any from dict value
+  def findFirstViolatingIndexes([head | tail], acc, rulesForUpdate) do
+    rulesForCurrent = rulesForUpdate[head]
 
-    uniqueBs = abPairs |> Enum.map(fn x -> Enum.at(x,1) end) |> Enum.uniq
-
-    cannotBeBeforeUniqueBs = uniqueBs |> Enum.map(fn b -> Enum.filter(abPairs, fn pair -> Enum.at(pair,1) == b end) |> Enum.map(fn x -> Enum.at(x,0) end) end)
-
-    rulesMap = Map.new(Enum.zip(uniqueBs,cannotBeBeforeUniqueBs))
-
-   updates = Regex.split(~r/\n/,Enum.at(splitInput,1), trim: true) |> Enum.map(fn x -> Regex.split(~r/\,/,x) |> Enum.map(&String.to_integer/1) end)
-
-   {rulesMap,updates}
+    if rulesForCurrent == nil do
+      findFirstViolatingIndexes(tail, [head | acc], rulesForUpdate)
+    else
+      #need to reverse bc of the way values appened into accumulator
+      idxOfRuleBreaker = Enum.find_index(Enum.reverse(acc), fn prev -> Enum.member?(rulesForCurrent,prev) end)
+      if idxOfRuleBreaker == nil do
+        findFirstViolatingIndexes(tail, [head | acc], rulesForUpdate)
+      else
+        {:found,Enum.count(acc),idxOfRuleBreaker}
+      end
+    end
 
   end
+  def findFirstViolatingIndexes([], _, _) do
+    {:ok, nil, nil}
+  end
+
 
 end

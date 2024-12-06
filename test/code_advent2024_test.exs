@@ -82,7 +82,9 @@ MXMXAXMASX",
 97,13,75,29,47",
 
       "correct" => [true, true, true, false, false, false],
-      "final" => 143
+      "final" => 143,
+      "corrected" => [[97,75,47,61,53],[61,29,13],[97,75,47,29,13]],
+      "final2" => 123
 
     }
 
@@ -144,7 +146,7 @@ MXMXAXMASX",
     assert CodeAdvent2024.countCrossMASOccurances(context[:day4Test]["input"]) == context[:day4Test]["final2"]
   end
 
-  test "test day 5 recursive check", context do
+  test "test day 5 recursive check" do
     assert CodeAdvent2024.recursiveCheck([2,1,3],[],%{ 2 => [1]})
     assert !CodeAdvent2024.recursiveCheck([1,2,3],[],%{ 2 => [1]})
 
@@ -164,6 +166,29 @@ MXMXAXMASX",
 
   test "test day 5 part 1", context do
     assert CodeAdvent2024.sumOfCorrectUpdateMiddles(context[:day5Test]["input"]) == context[:day5Test]["final"]
+  end
+
+  test "test day 5 find violating indexes" do
+    assert CodeAdvent2024.findFirstViolatingIndexes([1,2,3],[],%{1=>[2,3],2=>[3]}) == {:ok,nil,nil}
+    assert CodeAdvent2024.findFirstViolatingIndexes([2,1,3],[],%{1=>[2,3],2=>[3]}) == {:found,1,0}
+    assert CodeAdvent2024.findFirstViolatingIndexes([1,3,4,2],[],%{1=>[2,3],2=>[3]}) == {:found,3,1}
+  end
+
+  test "test day 5 fix ordering", context do
+    assert CodeAdvent2024.fixOrder(%{1=>[2,3],2=>[3]},[1,2,3]) == [1,2,3]
+    assert CodeAdvent2024.fixOrder(%{1=>[2,3],2=>[3]},[2,1,3]) == [1,2,3]
+    assert CodeAdvent2024.fixOrder(%{1=>[2,3],2=>[3]},[3,2,1]) == [1,2,3]
+    assert CodeAdvent2024.fixOrder(%{1=>[2,3],2=>[3]},[3,4,5,2,7,9,1,10]) == [1,4,5,2,7,9,3,10]
+
+    {rulesMap,updates} = CodeAdvent2024.parseDay5Input(context[:day5Test]["input"])
+    assert updates
+    |> Enum.filter(fn update -> !CodeAdvent2024.recursiveCheck(update,[],rulesMap) end)
+    |> Enum.map(fn update -> CodeAdvent2024.fixOrder(rulesMap,update) end) == context[:day5Test]["corrected"]
+
+  end
+
+  test "test day 5 part 2", context do
+    assert CodeAdvent2024.sumOfFixedUpdatesMiddles(context[:day5Test]["input"]) == context[:day5Test]["final2"]
   end
 
 end
