@@ -75,4 +75,10 @@ defmodule CodeAdvent2024Run do
     IO.puts "d4p2 answer: #{CodeAdvent2024.countCrossMASOccurances(File.read!(day4Path))}"
   end
 
+  #@tag :skip
+  test "day 5 part 1" do
+    day5Path = File.cwd!()<>"/test/resources/day5.txt"
+    IO.puts "d5p1 answer: #{CodeAdvent2024.sumOfCorrectUpdateMiddles(File.read!(day5Path))}"
+  end
+
 end

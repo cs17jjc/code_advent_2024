@@ -139,4 +139,59 @@ defmodule CodeAdvent2024 do
     Enum.count(Regex.scan(regexs,combined))
   end
 
+
+  #day 5
+
+  def sumOfCorrectUpdateMiddles(input) do
+    {rulesMap,updates} = parseDay5Input(input)
+
+    #filter updates for only correct
+    updates
+    |> Enum.filter(fn update -> recursiveCheck(update,[],rulesMap) end)
+    |> Enum.map(fn correctUpdate -> Enum.at(correctUpdate,round(Enum.count(correctUpdate)/2)-1) end)
+    |> Enum.sum
+
+  end
+
+  def recursiveCheck([head | tail], acc, rulesMap) do
+    rulesForCurrent = rulesMap[head]
+
+    if rulesForCurrent == nil do
+      recursiveCheck(tail,[head | acc], rulesMap)
+    else
+      #if any of the values in the acc are a member of the currents not before rules
+      if(Enum.any?(acc,fn prev -> Enum.member?(rulesForCurrent, prev) end)) do
+        false #Then it ain't correct
+      else
+        recursiveCheck(tail,[head | acc], rulesMap) #i guess it doesnt matter if acc is in reverse order? prooobably shouldnt be a list then if order doesnt matter but fuck it
+      end
+    end
+  end
+  def recursiveCheck([], _acc, _rulesMap) do
+    true #reached end of list without breaking a rule obviously
+  end
+
+  def parseDay5Input(input) do
+    #get rules map number -> [numbers that aren't allowed to appear before]
+    #and get list of updates [[a,b,c,...],...]
+
+    splitInput = Regex.split(~r/\n\n/s, Regex.replace(~r/\r/,input,""), trim: true)
+
+
+    abPairs = Regex.scan(~r/(\d+)\|(\d+)/,Enum.at(splitInput,0), capture: :all_but_first) |> Enum.map(fn x -> Enum.map(x,&String.to_integer/1) end) |> Enum.map(&Enum.reverse/1)
+    #construct some kind of dictionary, where key is number to check and value is list of number that cannot be before it
+    #that way, when scanning through an update, can just look at number and check if subset of numbers before it contain any from dict value
+
+    uniqueBs = abPairs |> Enum.map(fn x -> Enum.at(x,1) end) |> Enum.uniq
+
+    cannotBeBeforeUniqueBs = uniqueBs |> Enum.map(fn b -> Enum.filter(abPairs, fn pair -> Enum.at(pair,1) == b end) |> Enum.map(fn x -> Enum.at(x,0) end) end)
+
+    rulesMap = Map.new(Enum.zip(uniqueBs,cannotBeBeforeUniqueBs))
+
+   updates = Regex.split(~r/\n/,Enum.at(splitInput,1), trim: true) |> Enum.map(fn x -> Regex.split(~r/\,/,x) |> Enum.map(&String.to_integer/1) end)
+
+   {rulesMap,updates}
+
+  end
+
 end

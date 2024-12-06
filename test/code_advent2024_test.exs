@@ -51,13 +51,49 @@ MXMXAXMASX",
       "final2" => 9,
     }
 
+    day5Test = %{
+      "input" => "47|53
+97|13
+97|61
+97|47
+75|29
+61|13
+75|53
+29|13
+97|29
+53|29
+61|53
+97|53
+61|29
+47|13
+75|47
+97|75
+47|61
+75|61
+47|29
+75|13
+53|13
+
+75,47,61,53,29
+97,61,53,29,13
+75,29,13
+75,97,47,61,53
+61,13,29
+97,13,75,29,47",
+
+      "correct" => [true, true, true, false, false, false],
+      "final" => 143
+
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
     day2Part2Test: day2Part2Test,
     day3Part1Test: day3Part1Test,
     day3Part2Test: day3Part2Test,
-    day4Test: day4Test,}
+    day4Test: day4Test,
+  day5Test: day5Test}
   end
 
   test "test day 1 distance between lists", context do
@@ -106,6 +142,28 @@ MXMXAXMASX",
 
   test "test day 4 part 2 total", context do
     assert CodeAdvent2024.countCrossMASOccurances(context[:day4Test]["input"]) == context[:day4Test]["final2"]
+  end
+
+  test "test day 5 recursive check", context do
+    assert CodeAdvent2024.recursiveCheck([2,1,3],[],%{ 2 => [1]})
+    assert !CodeAdvent2024.recursiveCheck([1,2,3],[],%{ 2 => [1]})
+
+    assert CodeAdvent2024.recursiveCheck([1,2,3],[],%{ 1 => [2,3], 2 => [3]})
+    assert !CodeAdvent2024.recursiveCheck([3,2,1],[],%{ 1 => [2,3], 2 => [3]})
+
+    assert CodeAdvent2024.recursiveCheck([1,4,6,2,48,32,3],[],%{ 1 => [2,3], 2 => [3]})
+    assert !CodeAdvent2024.recursiveCheck([2,35,43,3,38,13,1],[],%{ 1 => [2,3], 2 => [3]})
+
+
+  end
+
+  test "test day 5 correctness", context do
+    {rulesMap,updates} = CodeAdvent2024.parseDay5Input(context[:day5Test]["input"])
+    assert Enum.map(updates, fn update -> CodeAdvent2024.recursiveCheck(update,[],rulesMap) end) == context[:day5Test]["correct"]
+  end
+
+  test "test day 5 part 1", context do
+    assert CodeAdvent2024.sumOfCorrectUpdateMiddles(context[:day5Test]["input"]) == context[:day5Test]["final"]
   end
 
 end
