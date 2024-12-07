@@ -190,27 +190,6 @@ defmodule CodeAdvent2024 do
     |> Enum.sum
   end
 
-  def sumOfFixedUpdatesMiddles(input) do
-    {rulesMap,updates} = parseDay5Input(input)
-    updates
-    |> Enum.filter(fn update -> !recursiveCheck(update,[],rulesMap) end)
-    |> Enum.map(fn update -> fixOrder(rulesMap,update) end)
-    |> Enum.map(fn fixedUpdate -> Enum.at(fixedUpdate,round(Enum.count(fixedUpdate)/2)-1) end)
-    |> Enum.sum
-  end
-
-  def fixOrder(rulesForUpdate, update) do
-    {status,index1,index2} = findFirstViolatingIndexes(update,[],rulesForUpdate)
-    if status == :found do
-      a = Enum.at(update,index1)
-      b = Enum.at(update,index2)
-      newUpdate = List.replace_at(update,index1,b) |> List.replace_at(index2,a)
-      fixOrder(rulesForUpdate,newUpdate)
-    else
-      update
-    end
-  end
-
   def findFirstViolatingIndexes([head | tail], acc, rulesForUpdate) do
     rulesForCurrent = rulesForUpdate[head]
 
@@ -231,5 +210,82 @@ defmodule CodeAdvent2024 do
     {:ok, nil, nil}
   end
 
+  def fixOrder(rulesForUpdate, update) do
+    {status,index1,index2} = findFirstViolatingIndexes(update,[],rulesForUpdate)
+    if status == :found do
+      a = Enum.at(update,index1)
+      b = Enum.at(update,index2)
+      newUpdate = List.replace_at(update,index1,b) |> List.replace_at(index2,a)
+      fixOrder(rulesForUpdate,newUpdate)
+    else
+      update
+    end
+  end
+
+  def sumOfFixedUpdatesMiddles(input) do
+    {rulesMap,updates} = parseDay5Input(input)
+    updates
+    |> Enum.filter(fn update -> !recursiveCheck(update,[],rulesMap) end)
+    |> Enum.map(fn update -> fixOrder(rulesMap,update) end)
+    |> Enum.map(fn fixedUpdate -> Enum.at(fixedUpdate,round(Enum.count(fixedUpdate)/2)-1) end)
+    |> Enum.sum
+  end
+
+  #day 6
+
+  def countVisitedInPath(input) do
+    solveGuardPath(parseDay6Input(input))[:map] |> Enum.count(fn {_,_,_,visited} -> visited end)
+  end
+
+  def parseDay6Input(input) do
+    lineSplit = Regex.split(~r/\n|\n\r/,input)
+    width = String.length(Enum.at(lineSplit,0))
+
+    map = Enum.with_index(lineSplit)
+    |> Enum.map(fn {line,lineY} -> {lineY, Enum.with_index(String.codepoints(line)) }end)
+    |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,char,false} end) end)
+
+    {guardX,guardY,_,_} = Enum.find(map, fn {_,_,char,_} -> char == "^" end)
+
+    %{guard: {guardX,guardY,:UP}, map: List.replace_at(map, guardX+guardY*width,{guardX,guardY,".",false})}
+
+  end
+
+  def solveGuardPath(data) do
+    tilesInDirection = getTilesInDirection(data[:guard], data[:map])
+    tilesInPath = Enum.take_while(tilesInDirection, fn {_,_,char,_} -> char != "#" end)
+
+    newMap = data[:map]
+    |> Enum.map(fn {x,y,char,visited} -> if Enum.member?(tilesInPath,{x,y,char,visited}) do {x,y,char,true} else {x,y,char,visited} end end)
+
+    newGuardDir = case data[:guard] do
+       {_,_,:UP} -> :RIGHT
+       {_,_,:RIGHT} -> :DOWN
+       {_,_,:DOWN} -> :LEFT
+       {_,_,:LEFT} -> :UP
+    end
+    furthestReachable = List.last(tilesInPath) #if cant move, then just keep same position
+
+    newGuard = case furthestReachable do
+       nil -> put_elem(data[:guard],2,newGuardDir)
+       {newGuardX,newGuardY,_,_} -> {newGuardX,newGuardY,newGuardDir}
+    end
+
+    if tilesInPath == tilesInDirection do
+      %{guard: newGuard, map: newMap}
+    else
+      solveGuardPath(%{guard: newGuard, map: newMap})
+    end
+
+  end
+
+  def getTilesInDirection(guard,map) do
+    case guard do
+      {guardX,guardY,:UP}-> map |> Enum.filter(fn {x,y,_,_} -> y <= guardY && x == guardX end) |> Enum.sort_by(fn {_,y,_,_} -> y end,:desc)
+      {guardX,guardY,:DOWN}-> map |> Enum.filter(fn {x,y,_,_} -> y >= guardY && x == guardX end) |> Enum.sort_by(fn {_,y,_,_} -> y end,:asc)
+      {guardX,guardY,:LEFT}-> map |> Enum.filter(fn {x,y,_,_} -> x <= guardX && y == guardY end) |> Enum.sort_by(fn {x,_,_,_} -> x end,:desc)
+      {guardX,guardY,:RIGHT}-> map |> Enum.filter(fn {x,y,_,_} -> x >= guardX && y == guardY end) |> Enum.sort_by(fn {x,_,_,_} -> x end,:asc)
+    end
+  end
 
 end
