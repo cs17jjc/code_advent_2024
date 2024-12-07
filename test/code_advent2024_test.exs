@@ -223,13 +223,13 @@ MXMXAXMASX",
       ]
     }
   end
-  @tag :skip
+
   test "test day 6 tiles in direction" do
     guard = {1,3,:UP}
     map = [{1,0,"#",false},{1,1,".",false},{1,2,".",false},{1,3,".",false},{1,4,".",false},{1,5,".",false}]
     assert CodeAdvent2024.getTilesInDirection(guard,map) == [{1,3,".",false},{1, 2, ".", false}, {1, 1, ".", false}, {1, 0, "#", false}]
   end
-  @tag :skip
+
   test "test day 6 solve path" do
     guard = {1,3,:UP}
     map = [{1,0,".",false},{1,1,".",false},{1,2,".",false},{1,3,".",false},{1,4,".",false},{1,5,".",false}]
@@ -257,5 +257,20 @@ MXMXAXMASX",
   test "test day 6 total", context do
     assert CodeAdvent2024.countVisitedInPath(context[:day6Test]["input"]) == context[:day6Test]["final"]
   end
+
+  test "test day 6 path with direction" do
+  guard = {1,4,:UP}
+  map = [
+    {1,0,"#",[]},{1,1,".",[]},{1,2,".",[]},{1,3,".",[]},{1,4,".",[]},{1,5,".",[]},
+    {2,0,".",[]},{2,1,".",[]},{2,2,".",[]},{2,3,".",[]},{2,4,"#",[]},{2,5,".",[]},
+    {3,0,".",[]},{3,1,"#",[]},{3,2,".",[]},{3,3,".",[]},{3,4,".",[]},{3,5,".",[]},
+    ]
+
+  assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:map] == [
+    {1,0,"#",[]},{1,1,".",[:UP,:RIGHT]},{1,2,".",[:UP]},{1,3,".",[:UP,:LEFT]},{1,4,".",[:UP]},{1,5,".",[]},
+    {2,0,".",[]},{2,1,".",[:RIGHT,:DOWN]},{2,2,".",[:DOWN]},{2,3,".",[:DOWN,:LEFT]},{2,4,"#",[]},{2,5,".",[]},
+    {3,0,".",[]},{3,1,"#",[]},{3,2,".",[]},{3,3,".",[]},{3,4,".",[]},{3,5,".",[]},
+    ]
+end
 
 end
