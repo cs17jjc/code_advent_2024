@@ -238,29 +238,77 @@ defmodule CodeAdvent2024 do
   end
 
   def countNewObsThatCauseLoop(input) do
-    solvedMap = solveGuardPath(parseDay6Part2Input(input))[:map]
+    data = parseDay6Input(input)
+    loopCausingObstaclePositions(solveGuardPathWithDirections(%{map: data[:map], guard: data[:guard]})[:path],[],[],data[:map]) |> Enum.count
   end
+
+
+  def loopCausingObstaclePositions([head | tail], prevPath, obstacleCausing, map) do
+    fullPrevPath = prevPath ++ [head]
+    {currentX, currentY, direction} = head
+
+    if isTileInFrontEmpty(map, currentX,currentY,direction) && !isTileInFrontPartofPath(currentX, currentY,direction,prevPath) do
+      #empty and not part of previous path
+      {newObsX,newObsY,_,_} = getTileInfrontOf(map,currentX,currentY,direction)
+      mapWithObstacle = setTileToObstacle(map,newObsX,newObsY)
+
+      solvedWithObstacle = solveGuardPathWithDirections(%{map: mapWithObstacle, guard: {currentX,currentY,getNextDirection(direction)}, path: fullPrevPath })
+      if solvedWithObstacle[:loops] do
+        loopCausingObstaclePositions(tail,fullPrevPath,obstacleCausing ++ [{newObsX,newObsY}],map)
+      else
+        loopCausingObstaclePositions(tail,fullPrevPath,obstacleCausing ,map)
+      end
+    else
+      loopCausingObstaclePositions(tail,fullPrevPath,obstacleCausing,map)
+    end
+  end
+  def loopCausingObstaclePositions([], _, obstacleCausing, _) do
+    obstacleCausing
+  end
+
+  def setTileToObstacle(map,obsX,obsY) do
+    Enum.map(map,fn {x,y,char,v} -> if x == obsX && y == obsY do {x,y,"#",v} else {x,y,char,v} end end)
+  end
+
+  def isTileInFrontPartofPath(posX,posY,direction,path) do
+    case direction do
+      :UP -> Enum.any?(path,fn {x,y,_} -> x == posX && y == posY-1 end)
+      :RIGHT -> Enum.any?(path,fn {x,y,_} -> x == posX+1 && y == posY end)
+      :DOWN -> Enum.any?(path,fn {x,y,_} -> x == posX && y == posY+1 end)
+      :LEFT -> Enum.any?(path,fn {x,y,_} -> x == posX-1 && y == posY end)
+    end
+  end
+
+  def isTileInFrontEmpty(map,posX,posY,direction) do
+    tile = getTileInfrontOf(map,posX,posY,direction)
+    case tile do
+      nil -> false
+      {_,_,"#",_} -> false
+      {_,_,".",_} -> true
+    end
+  end
+
+  def getTileInfrontOf(map,posX,posY,direction) do
+    case direction do
+      :UP -> Enum.find(map,fn {x,y,_,_} -> x == posX && y == posY-1 end)
+      :RIGHT -> Enum.find(map,fn {x,y,_,_} -> x == posX+1 && y == posY end)
+      :DOWN -> Enum.find(map,fn {x,y,_,_} -> x == posX && y == posY+1 end)
+      :LEFT -> Enum.find(map,fn {x,y,_,_} -> x == posX-1 && y == posY end)
+    end
+  end
+
 
   def parseDay6Input(input) do
-    parseDay6Input(input, false)
-  end
-
-  def parseDay6Part2Input(input) do
-    parseDay6Input(input,[])
-  end
-
-  def parseDay6Input(input, default) do
     lineSplit = Regex.split(~r/\n|\n\r/,input)
     width = String.length(Enum.at(lineSplit,0))
 
     map = Enum.with_index(lineSplit)
     |> Enum.map(fn {line,lineY} -> {lineY, Enum.with_index(String.codepoints(line)) }end)
-
-    |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,char,default} end) end)
+    |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,char,false} end) end)
 
     {guardX,guardY,_,_} = Enum.find(map, fn {_,_,char,_} -> char == "^" end)
 
-    %{guard: {guardX,guardY,:UP}, map: List.replace_at(map, guardX+guardY*width,{guardX,guardY,".",default})}
+    %{guard: {guardX,guardY,:UP}, map: List.replace_at(map, guardX+guardY*width,{guardX,guardY,".",false})}
   end
 
   def solveGuardPath(data) do
@@ -277,11 +325,14 @@ defmodule CodeAdvent2024 do
     tilesInDirection = getTilesInDirection(data[:guard], data[:map])
     tilesInPath = Enum.take_while(tilesInDirection, fn {_,_,char,_} -> char != "#" end)
 
-    {_,_,guardDir} = data[:guard]
     newMap = data[:map]
-    |> Enum.map(fn {x,y,char,directions} -> if Enum.member?(tilesInPath,{x,y,char,directions}) do {x,y,char,directions++[guardDir]} else {x,y,char,directions} end end)
+    |> Enum.map(fn {x,y,char,visited} -> if Enum.member?(tilesInPath,{x,y,char,visited}) do {x,y,char,true} else {x,y,char,visited} end end)
 
-    createNewDataWithDirections(data, tilesInPath == tilesInDirection, tilesInPath, newMap)
+    #path list contains {x, y, direction of travel, if hits wall}
+    {_,_,guardDir} = data[:guard]
+    path = tilesInPath |> Enum.map(fn {x,y,_,_} -> {x,y,guardDir} end)
+
+    createNewDataWithDirections(data, tilesInPath == tilesInDirection, tilesInPath, newMap, path)
   end
 
   def createNewData(data,isOffEdge,tilesInPath, newMap) do
@@ -293,17 +344,22 @@ defmodule CodeAdvent2024 do
     end
   end
 
-  def createNewDataWithDirections(data,isOffEdge,tilesInPath, newMap) do
+  def createNewDataWithDirections(data,isOffEdge,tilesInPath, newMap, path) do
       newGuard = getNewGuard(data[:guard], tilesInPath)
-      if isOffEdge do
-        %{guard: newGuard, map: newMap}
+      newPath = case data[:path] do
+        nil -> path
+        _ -> data[:path] ++ path
+      end
+      loops = Enum.uniq(newPath) != newPath
+      if isOffEdge || loops do
+        %{guard: newGuard, map: newMap, path: newPath, loops: loops}
       else
-        solveGuardPathWithDirections(%{guard: newGuard, map: newMap})
+        solveGuardPathWithDirections(%{guard: newGuard, map: newMap, path: newPath, loops: loops})
       end
   end
 
   def getNewGuard(currentGuard,tilesInPath) do
-    newGuardDir = getNewGuardDirection(currentGuard)
+    newGuardDir = getNextDirection(elem(currentGuard,2))
     furthestReachable = List.last(tilesInPath) #if cant move, then just keep same position
 
     case furthestReachable do
@@ -312,12 +368,12 @@ defmodule CodeAdvent2024 do
    end
   end
 
-  def getNewGuardDirection(guard) do
-    case guard do
-      {_,_,:UP} -> :RIGHT
-      {_,_,:RIGHT} -> :DOWN
-      {_,_,:DOWN} -> :LEFT
-      {_,_,:LEFT} -> :UP
+  def getNextDirection(direction) do
+    case direction do
+      :UP -> :RIGHT
+      :RIGHT -> :DOWN
+      :DOWN -> :LEFT
+      :LEFT -> :UP
    end
   end
 

@@ -93,4 +93,10 @@ defmodule CodeAdvent2024Run do
     IO.puts "d6p1 answer: #{CodeAdvent2024.countVisitedInPath(File.read!(day6Path))}"
   end
 
+  @tag :skip
+  test "day 6 part 2" do
+    day6Path = File.cwd!()<>"/test/resources/day6.txt"
+    IO.puts "d6p2 answer: #{CodeAdvent2024.countNewObsThatCauseLoop(File.read!(day6Path))}"
+  end
+
 end

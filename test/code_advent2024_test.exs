@@ -99,7 +99,8 @@ MXMXAXMASX",
 ........#.
 #.........
 ......#...",
-      "final" => 41
+      "final" => 41,
+      "final2" => 6
     }
 
     {:ok,
@@ -258,19 +259,49 @@ MXMXAXMASX",
     assert CodeAdvent2024.countVisitedInPath(context[:day6Test]["input"]) == context[:day6Test]["final"]
   end
 
-  test "test day 6 path with direction" do
-  guard = {1,4,:UP}
-  map = [
-    {1,0,"#",[]},{1,1,".",[]},{1,2,".",[]},{1,3,".",[]},{1,4,".",[]},{1,5,".",[]},
-    {2,0,".",[]},{2,1,".",[]},{2,2,".",[]},{2,3,".",[]},{2,4,"#",[]},{2,5,".",[]},
-    {3,0,".",[]},{3,1,"#",[]},{3,2,".",[]},{3,3,".",[]},{3,4,".",[]},{3,5,".",[]},
+  test "test day 6 part 2 get path" do
+    guard = {2,0,:LEFT}
+    map = [{0,0,".",false},{1,0,".",false},{2,0,".",false},{3,0,".",false},{4,0,".",false},{5,0,".",false}]
+
+    assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:path] == [
+      {2,0,:LEFT},{1,0,:LEFT},{0,0,:LEFT}
     ]
 
-  assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:map] == [
-    {1,0,"#",[]},{1,1,".",[:UP,:RIGHT]},{1,2,".",[:UP]},{1,3,".",[:UP,:LEFT]},{1,4,".",[:UP]},{1,5,".",[]},
-    {2,0,".",[]},{2,1,".",[:RIGHT,:DOWN]},{2,2,".",[:DOWN]},{2,3,".",[:DOWN,:LEFT]},{2,4,"#",[]},{2,5,".",[]},
-    {3,0,".",[]},{3,1,"#",[]},{3,2,".",[]},{3,3,".",[]},{3,4,".",[]},{3,5,".",[]},
+    map = [{0,0,"#",false},{1,0,".",false},{2,0,".",false},{3,0,".",false},{4,0,".",false},{5,0,".",false}]
+
+    assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:path] == [
+      {2,0,:LEFT},{1,0,:LEFT},{1,0,:UP}
     ]
-end
+
+    guard = {4,2,:LEFT}
+    map = [
+      {0,0,".",false},{1,0,"#",false},{2,0,".",false},{3,0,".",false},{4,0,".",false},{5,0,".",false},
+      {0,1,".",false},{1,1,".",false},{2,1,".",false},{3,1,".",false},{4,1,".",false},{5,1,"#",false},
+      {0,2,"#",false},{1,2,".",false},{2,2,".",false},{3,2,".",false},{4,2,".",false},{5,2,".",false},
+      {0,3,".",false},{1,3,".",false},{2,3,".",false},{3,3,".",false},{4,3,".",false},{5,3,".",false},
+    ]
+
+    assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:path] == [
+      {4, 2, :LEFT,},{3, 2, :LEFT,},{2, 2, :LEFT,},{1, 2, :LEFT,},{1, 2, :UP,},{1, 1, :UP,},{1, 1, :RIGHT},
+      {2, 1, :RIGHT},{3, 1, :RIGHT},{4, 1, :RIGHT},{4, 1, :DOWN},{4, 2, :DOWN},{4, 3, :DOWN}
+    ]
+
+  end
+
+  test "test day 6 part 2 does path loop" do
+    guard = {4,2,:LEFT}
+    map = [
+      {0,0,".",false},{1,0,"#",false},{2,0,".",false},{3,0,".",false},{4,0,".",false},{5,0,".",false},
+      {0,1,".",false},{1,1,".",false},{2,1,".",false},{3,1,".",false},{4,1,".",false},{5,1,"#",false},
+      {0,2,"#",false},{1,2,".",false},{2,2,".",false},{3,2,".",false},{4,2,".",false},{5,2,".",false},
+      {0,3,".",false},{1,3,".",false},{2,3,".",false},{3,3,".",false},{4,3,"#",false},{5,3,".",false},
+    ]
+
+    assert CodeAdvent2024.solveGuardPathWithDirections(%{guard: guard, map: map})[:loops]
+  end
+
+  test "test day 6 part 2 total", context do
+    assert CodeAdvent2024.countNewObsThatCauseLoop(context[:day6Test]["input"]) == context[:day6Test]["final2"]
+  end
 
 end
