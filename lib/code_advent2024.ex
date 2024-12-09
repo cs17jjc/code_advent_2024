@@ -446,20 +446,36 @@ end
     [{x1+deltaX,y1+deltaY},{x2-deltaX,y2-deltaY}]
   end
 
-  def getAllAntinodesFor([{x1,y1} | tail], antinodes) do
-    newAntinodes = Enum.flat_map(tail, fn {x2,y2} -> getAntinodePositions(x1,y1,x2,y2) end) |> Enum.filter(fn pos -> !Enum.member?(antinodes,pos) end)
-    getAllAntinodesFor(tail,antinodes ++ newAntinodes)
+  def getAntinodePositionsHarmonics(x1,y1,x2,y2) do
+    #absolute dogshit solution
+    deltaX = x1-x2
+    deltaY = y1-y2
+    (Enum.to_list(1..100) |> Enum.flat_map(fn r -> [{x1+deltaX*r,y1+deltaY*r},{x1-deltaX*r,y1-deltaY*r}] end)) ++ [{x1,y1}]
+
   end
-  def getAllAntinodesFor([], antinodes) do
+
+  def getAllAntinodesFor([{x1,y1} | tail], antinodes, getAntinode) do
+    newAntinodes = Enum.flat_map(tail, fn {x2,y2} -> getAntinode.(x1,y1,x2,y2) end) |> Enum.filter(fn pos -> !Enum.member?(antinodes,pos) end)
+    getAllAntinodesFor(tail,antinodes ++ newAntinodes,getAntinode)
+  end
+  def getAllAntinodesFor([], antinodes, _) do
     antinodes
   end
 
   def allUniqueAntinodes(antennaPositions) do
-    Enum.flat_map(antennaPositions, fn positions -> getAllAntinodesFor(positions,[]) end) |> Enum.uniq
+    Enum.flat_map(antennaPositions, fn positions -> getAllAntinodesFor(positions,[],&getAntinodePositions/4) end) |> Enum.uniq
+  end
+
+  def allUniqueAntinodesHarmonics(antennaPositions) do
+    Enum.flat_map(antennaPositions, fn positions -> getAllAntinodesFor(positions,[],&getAntinodePositionsHarmonics/4) end) |> Enum.uniq
   end
 
   def countAntinodesOnMap(map,antennaPositions) do
     allUniqueAntinodes(antennaPositions) |> Enum.count(fn {antinodeX,antinodeY} -> Enum.any?(map, fn {x,y,_} -> x == antinodeX && y == antinodeY end) end)
+  end
+
+  def countAntinodesOnMapHarmonics(map,antennaPositions) do
+    allUniqueAntinodesHarmonics(antennaPositions) |> Enum.count(fn {antinodeX,antinodeY} -> Enum.any?(map, fn {x,y,_} -> x == antinodeX && y == antinodeY end) end)
   end
 
   def parseday8Input(input) do
@@ -482,6 +498,10 @@ end
   def countAntinodesForInput(input) do
     data = parseday8Input(input)
     countAntinodesOnMap(data[:map],data[:perFreqAntennaPositions])
+  end
+  def countAntinodesHarmonicsForInput(input) do
+    data = parseday8Input(input)
+    countAntinodesOnMapHarmonics(data[:map],data[:perFreqAntennaPositions])
   end
 
 

@@ -133,7 +133,8 @@ MXMXAXMASX",
 ............
 ............",
 
-      "final" => 14
+      "final" => 14,
+      "final2" => 34
     }
 
     {:ok,
@@ -370,11 +371,15 @@ o.a
 
 
     antennaPositions = [{4,3},{8,4},{5,5}]
-    assert CodeAdvent2024.getAllAntinodesFor(antennaPositions,[]) == [{0, 2}, {12, 5}, {3, 1}, {6, 7}, {11, 3}, {2, 6}]
+    assert CodeAdvent2024.getAllAntinodesFor(antennaPositions,[],&CodeAdvent2024.getAntinodePositions/4) == [{0, 2}, {12, 5}, {3, 1}, {6, 7}, {11, 3}, {2, 6}]
   end
 
   test "test day 8 part 1 final", context do
     assert CodeAdvent2024.countAntinodesForInput(context[:day8Test]["input"]) == context[:day8Test]["final"]
+  end
+
+  test "test day 8 part 2 final", context do
+    assert CodeAdvent2024.countAntinodesHarmonicsForInput(context[:day8Test]["input"]) == context[:day8Test]["final2"]
   end
 
 end
