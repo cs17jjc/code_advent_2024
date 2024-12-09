@@ -103,6 +103,20 @@ MXMXAXMASX",
       "final2" => 6
     }
 
+    day7Test = %{
+      "input" => "190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20",
+
+      "final" => 3749
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -111,7 +125,8 @@ MXMXAXMASX",
     day3Part2Test: day3Part2Test,
     day4Test: day4Test,
     day5Test: day5Test,
-    day6Test: day6Test}
+    day6Test: day6Test,
+    day7Test: day7Test,}
   end
 
   test "test day 1 distance between lists", context do
@@ -302,6 +317,15 @@ MXMXAXMASX",
 
   test "test day 6 part 2 total", context do
     assert CodeAdvent2024.countNewObsThatCauseLoop(context[:day6Test]["input"]) == context[:day6Test]["final2"]
+  end
+
+  test "test day 7 parse input" do
+    input = "190: 10 19"
+    assert CodeAdvent2024.parseDay7Input(input) == [{190,[10,19]}]
+  end
+
+  test "test day 7 final", context do
+    assert CodeAdvent2024.sumOfValidEquations(context[:day7Test]["input"]) == context[:day7Test]["final"]
   end
 
 end

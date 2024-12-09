@@ -99,4 +99,10 @@ defmodule CodeAdvent2024Run do
     IO.puts "d6p2 answer: #{CodeAdvent2024.countNewObsThatCauseLoop(File.read!(day6Path))}"
   end
 
+  #@tag :skip
+  test "day 7 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day7.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.sumOfValidEquations(File.read!(path))}"
+  end
+
 end

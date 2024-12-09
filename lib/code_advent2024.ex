@@ -386,4 +386,44 @@ defmodule CodeAdvent2024 do
     end
   end
 
+  #day 7
+
+  def isLeaf(idx, tree) do
+    !Enum.any?(tree, fn node -> node[:parentId] == idx end)
+  end
+
+  def getLeaves(tree) do
+    Enum.with_index(tree) |> Enum.filter(fn {_,idx} -> isLeaf(idx,tree) end)
+  end
+
+  def addToOperationsTree(val, []) do
+    [%{parentId: -1, value: val, operation: :NONE, cumulative: val}]
+  end
+  def addToOperationsTree(val, acc = [_|_]) do
+
+    newLeaves = getLeaves(acc) |> Enum.flat_map(fn {node,idx} -> [
+      %{parentId: idx, value: val, operation: :PLUS, cumulative: node[:cumulative] + val},
+      %{parentId: idx, value: val, operation: :MULTIPLY, cumulative: node[:cumulative] * val}] end)
+
+    acc ++ newLeaves
+
+  end
+
+  def isPossible(target, values) do
+      getLeaves(List.foldl(values,[],&addToOperationsTree/2)) |> Enum.any?(fn {node,_} -> node[:cumulative] == target end)
+  end
+
+  def parseDay7Input(input) do
+    Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
+    |> Enum.map(fn line -> Regex.split(~r/:/,line, trim: true) end)
+    |> Enum.map(fn [target,values] -> {String.to_integer(target), Regex.split(~r/ /,values, trim: true) |> Enum.map(&String.to_integer/1) } end)
+  end
+
+  def sumOfValidEquations(input) do
+    #too low so must be filtering out ones that are actually possible
+    parseDay7Input(input) |> Enum.filter(fn {target,values} -> isPossible(target,values) end) |> Enum.map(fn {target,_} -> target end) |> Enum.sum
+  end
+
+
+
 end
