@@ -119,6 +119,23 @@ MXMXAXMASX",
 
     }
 
+    day8Test = %{
+      "input" => "............
+........0...
+.....0......
+.......0....
+....0.......
+......A.....
+............
+............
+........A...
+.........A..
+............
+............",
+
+      "final" => 14
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -128,7 +145,8 @@ MXMXAXMASX",
     day4Test: day4Test,
     day5Test: day5Test,
     day6Test: day6Test,
-    day7Test: day7Test,}
+    day7Test: day7Test,
+    day8Test: day8Test}
   end
 
   test "test day 1 distance between lists", context do
@@ -332,6 +350,31 @@ MXMXAXMASX",
 
   test "test day 7 part 2 final", context do
     assert CodeAdvent2024.sumOfValidEquations2(context[:day7Test]["input"]) == context[:day7Test]["final2"]
+  end
+
+  test "test day 8 parse input" do
+    input = "...
+o.a
+..."
+    assert CodeAdvent2024.parseday8Input(input) == %{
+      perFreqAntennaPositions: [[{2, 1}], [{0, 1}]],
+      map: [{0, 0, "."}, {1, 0, "."}, {2, 0, "."}, {0, 1, "o"}, {1, 1, "."}, {2, 1, "a"}, {0, 2, "."}, {1, 2, "."}, {2, 2, "."}]
+    }
+  end
+
+  test "test day 8 get antinode positions" do
+    assert CodeAdvent2024.getAntinodePositions(2,1,2,2) == [{2, 0}, {2, 3}]
+    assert CodeAdvent2024.getAntinodePositions(1,1,2,2) == [{0, 0}, {3, 3}]
+
+    assert CodeAdvent2024.getAntinodePositions(5,2,7,3) == [{3, 1}, {9, 4}]
+
+
+    antennaPositions = [{4,3},{8,4},{5,5}]
+    assert CodeAdvent2024.getAllAntinodesFor(antennaPositions,[]) == [{0, 2}, {12, 5}, {3, 1}, {6, 7}, {11, 3}, {2, 6}]
+  end
+
+  test "test day 8 part 1 final", context do
+    assert CodeAdvent2024.countAntinodesForInput(context[:day8Test]["input"]) == context[:day8Test]["final"]
   end
 
 end

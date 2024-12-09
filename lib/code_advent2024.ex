@@ -438,6 +438,54 @@ end
   end
 
 
+  #day 8
+
+  def getAntinodePositions(x1,y1,x2,y2) do
+    deltaX = x1-x2
+    deltaY = y1-y2
+    [{x1+deltaX,y1+deltaY},{x2-deltaX,y2-deltaY}]
+  end
+
+  def getAllAntinodesFor([{x1,y1} | tail], antinodes) do
+    newAntinodes = Enum.flat_map(tail, fn {x2,y2} -> getAntinodePositions(x1,y1,x2,y2) end) |> Enum.filter(fn pos -> !Enum.member?(antinodes,pos) end)
+    getAllAntinodesFor(tail,antinodes ++ newAntinodes)
+  end
+  def getAllAntinodesFor([], antinodes) do
+    antinodes
+  end
+
+  def allUniqueAntinodes(antennaPositions) do
+    Enum.flat_map(antennaPositions, fn positions -> getAllAntinodesFor(positions,[]) end) |> Enum.uniq
+  end
+
+  def countAntinodesOnMap(map,antennaPositions) do
+    allUniqueAntinodes(antennaPositions) |> Enum.count(fn {antinodeX,antinodeY} -> Enum.any?(map, fn {x,y,_} -> x == antinodeX && y == antinodeY end) end)
+  end
+
+  def parseday8Input(input) do
+    lineSplit = Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
+
+    map = Enum.with_index(lineSplit)
+    |> Enum.map(fn {line,lineY} -> {lineY, Enum.with_index(String.codepoints(line)) }end)
+    |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,char} end) end)
+
+    perFreqPositions = map |> Enum.filter(fn {_,_,char} -> char != "." end )
+    |> Enum.group_by(fn {_,_,char} -> char end)
+    |> Map.values
+    |> Enum.map(fn positions -> Enum.map(positions,fn {x,y,_} -> {x,y} end) end)
+
+
+    %{map: map, perFreqAntennaPositions: perFreqPositions}
+
+  end
+
+  def countAntinodesForInput(input) do
+    data = parseday8Input(input)
+    countAntinodesOnMap(data[:map],data[:perFreqAntennaPositions])
+  end
+
+
+
 
 
 

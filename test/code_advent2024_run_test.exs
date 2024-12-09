@@ -111,4 +111,10 @@ defmodule CodeAdvent2024Run do
     IO.puts " #{name} answer: #{CodeAdvent2024.sumOfValidEquations2(File.read!(path))}"
   end
 
+  #@tag :skip
+  test "day 8 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day8.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.countAntinodesForInput(File.read!(path))}"
+  end
+
 end
