@@ -388,30 +388,38 @@ defmodule CodeAdvent2024 do
 
   #day 7
 
-  def isLeaf(idx, tree) do
-    !Enum.any?(tree, fn node -> node[:parentId] == idx end)
+  def getNewNodes(val, node) do
+    [
+      node + val,
+      node * val
+    ]
   end
 
-  def getLeaves(tree) do
-    Enum.with_index(tree) |> Enum.filter(fn {_,idx} -> isLeaf(idx,tree) end)
+  def getNewNodes2(val, node) do
+    [
+      node + val,
+      node * val,
+      String.to_integer("#{node}#{val}")
+    ]
   end
 
-  def addToOperationsTree(val, []) do
-    [%{parentId: -1, value: val, operation: :NONE, cumulative: val}]
+  def addToOperationsTree(val, [], _, _) do
+    [val]
   end
-  def addToOperationsTree(val, acc = [_|_]) do
+  def addToOperationsTree(val, acc = [_|_], target, newNodeFunc) do
 
-    newLeaves = getLeaves(acc) |> Enum.flat_map(fn {node,idx} -> [
-      %{parentId: idx, value: val, operation: :PLUS, cumulative: node[:cumulative] + val},
-      %{parentId: idx, value: val, operation: :MULTIPLY, cumulative: node[:cumulative] * val}] end)
-
-    acc ++ newLeaves
+    acc |> Enum.flat_map(fn node -> newNodeFunc.(val, node) end)
+      |> Enum.filter(fn cumulative -> cumulative <= target end)
 
   end
 
   def isPossible(target, values) do
-      getLeaves(List.foldl(values,[],&addToOperationsTree/2)) |> Enum.any?(fn {node,_} -> node[:cumulative] == target end)
+      List.foldl(values,[], fn val,acc -> addToOperationsTree(val,acc,target,&getNewNodes/2) end) |> Enum.any?(fn cumulative -> cumulative == target end)
   end
+
+  def isPossible2(target, values) do
+    List.foldl(values,[], fn val,acc -> addToOperationsTree(val,acc,target,&getNewNodes2/2) end) |> Enum.any?(fn cumulative -> cumulative == target end)
+end
 
   def parseDay7Input(input) do
     Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
@@ -423,6 +431,15 @@ defmodule CodeAdvent2024 do
     #too low so must be filtering out ones that are actually possible
     parseDay7Input(input) |> Enum.filter(fn {target,values} -> isPossible(target,values) end) |> Enum.map(fn {target,_} -> target end) |> Enum.sum
   end
+
+  def sumOfValidEquations2(input) do
+    #too low so must be filtering out ones that are actually possible
+    parseDay7Input(input) |> Enum.filter(fn {target,values} -> isPossible2(target,values) end) |> Enum.map(fn {target,_} -> target end) |> Enum.sum
+  end
+
+
+
+
 
 
 

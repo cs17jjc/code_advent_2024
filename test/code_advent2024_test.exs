@@ -114,7 +114,9 @@ MXMXAXMASX",
 21037: 9 7 18 13
 292: 11 6 16 20",
 
-      "final" => 3749
+      "final" => 3749,
+      "final2" => 11387,
+
     }
 
     {:ok,
@@ -324,8 +326,12 @@ MXMXAXMASX",
     assert CodeAdvent2024.parseDay7Input(input) == [{190,[10,19]}]
   end
 
-  test "test day 7 final", context do
+  test "test day 7 part 1 final", context do
     assert CodeAdvent2024.sumOfValidEquations(context[:day7Test]["input"]) == context[:day7Test]["final"]
+  end
+
+  test "test day 7 part 2 final", context do
+    assert CodeAdvent2024.sumOfValidEquations2(context[:day7Test]["input"]) == context[:day7Test]["final2"]
   end
 
 end
