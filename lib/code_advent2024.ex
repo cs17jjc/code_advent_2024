@@ -609,11 +609,50 @@ def solveFileCompacting(list) do
     solveFileCompacting(list2)
   end
 end
-
-
 def getFileCompactedChecksum(input) do
   blocks = parseDay9Input(input)
   getChecksum(solveFileCompacting(blocks |> Enum.zip(List.duplicate(false,Enum.count(blocks)))) |> Enum.flat_map(fn {v,_} -> v end) )
+end
+
+#Day 10
+
+def isAdjacent(x1,y1,x2,y2) do
+  (abs(x1-x2) + abs(y1-y2) == 1)
+end
+
+def getNextPointsInPath(map, path) do
+  Enum.flat_map(path, fn {x1,y1,h1} -> Enum.filter(map, fn {x2,y2,h2} -> isAdjacent(x1,y1,x2,y2) && (h2 == h1+1)  end) end)
+end
+
+def solvePathFor(map,path,ends) do
+  {newEnds,nextPath} = Enum.split_with(getNextPointsInPath(map,path),fn {_,_,h} -> h == 9 end)
+
+  if nextPath == [] do
+    Enum.uniq(newEnds ++ ends)
+  else
+    solvePathFor(map,nextPath,newEnds ++ ends)
+  end
+end
+
+def getHeadScore(map,head) do
+  solvePathFor(map,[head],[]) |> Enum.count()
+end
+
+def parseDay10Input(input) do
+  lineSplit = Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
+
+  map = Enum.with_index(lineSplit)
+  |> Enum.map(fn {line,lineY} -> {lineY, Enum.with_index(String.codepoints(line)) }end)
+  |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,String.to_integer(char)} end) end)
+
+  heads = map |> Enum.filter(fn {_,_,height} -> height == 0 end)
+
+  %{map: map, heads: heads}
+end
+
+def sumOfAllTrailheadScores(input) do
+  %{map: map, heads: heads} = parseDay10Input(input)
+  Enum.map(heads, fn h -> getHeadScore(map,h) end) |> Enum.sum()
 end
 
 end

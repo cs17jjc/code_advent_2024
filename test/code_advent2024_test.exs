@@ -143,6 +143,19 @@ MXMXAXMASX",
       "final2" => 2858
     }
 
+    day10Test =%{
+      "input" => "89010123
+78121874
+87430965
+96549874
+45678903
+32019012
+01329801
+10456732",
+
+      "final" => 36
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -154,7 +167,8 @@ MXMXAXMASX",
     day6Test: day6Test,
     day7Test: day7Test,
     day8Test: day8Test,
-    day9Test: day9Test,}
+    day9Test: day9Test,
+    day10Test: day10Test,}
   end
 
   test "test day 1 distance between lists", context do
@@ -432,9 +446,45 @@ o.a
 
   end
 
-  #@tag :skip
   test "test day 9 part 2 final", context do
     assert CodeAdvent2024.getFileCompactedChecksum(context[:day9Test]["input"]) == context[:day9Test]["final2"]
+  end
+
+  test "test day 10 parse input" do
+    assert CodeAdvent2024.parseDay10Input("012\n543\n678") == %{
+      map: [{0, 0, 0},{1, 0, 1},{2, 0, 2},{0, 1, 5},{1, 1, 4},{2, 1, 3},{0, 2, 6},{1, 2, 7},{2, 2, 8}],
+      heads: [{0, 0, 0}]
+    }
+  end
+
+  test "test day 10 part 1 whatever" do
+    map = [
+      {0,0,0},{1,0,0},{2,0,0},
+      {0,1,0},{1,1,0},{2,1,1},
+      {0,2,0},{1,2,1},{2,2,0},
+    ]
+    assert CodeAdvent2024.getNextPointsInPath(map,[{1,1,0}]) == [{2, 1, 1}, {1, 2, 1}]
+
+    map = [
+      {0,0,0},{1,0,0},{2,0,0},
+      {0,1,0},{1,1,8},{2,1,9},
+      {0,2,0},{1,2,0},{2,2,0},
+    ]
+    assert CodeAdvent2024.getNextPointsInPath(map,[{1,1,8}]) == [{2,1,9}]
+
+    map = [
+      {0,0,1},{1,0,2},{2,0,3},
+      {0,1,6},{1,1,5},{2,1,4},
+      {0,2,7},{1,2,8},{2,2,9},
+      {0,3,8},{1,3,9},{2,3,7},
+    ]
+    assert CodeAdvent2024.isAdjacent(0,3,2,2) == false
+    assert CodeAdvent2024.getNextPointsInPath(map,[{1, 2, 8}, {0, 3, 8}]) == [{2, 2, 9}, {1, 3, 9}, {1, 3, 9}]
+    assert CodeAdvent2024.solvePathFor(map,[{0,0,1}],[]) == [{2, 2, 9}, {1, 3, 9}]
+  end
+
+  test "test day 10 part 1 final", context do
+    assert CodeAdvent2024.sumOfAllTrailheadScores(context[:day10Test]["input"]) == context[:day10Test]["final"]
   end
 
 end
