@@ -505,10 +505,115 @@ end
   end
 
 
+#day 9
+
+def performBlockMoveStep(list) do
+
+  firstWithNilIndex = Enum.find_index(list, fn l -> Enum.any?(l, fn v -> v == nil end) end)
+  lastWithValueIndex  = Enum.count(list) - 1 - Enum.find_index(Enum.reverse(list), fn l -> Enum.any?(l, fn v -> v != nil end) end)
+
+  if firstWithNilIndex >= lastWithValueIndex do
+    {true,list}
+  else
+    firstWithNil = Enum.at(list,firstWithNilIndex)
+    {fistsNils,firstValues} = Enum.split_with(firstWithNil, fn v -> v == nil end)
+
+    lastWithValue = Enum.at(list,lastWithValueIndex)
+
+
+    valuesToTake = Enum.count(fistsNils)
+    {takeValues,remainValues} = Enum.split(lastWithValue,valuesToTake)
+
+    nilsToRemain = Enum.count(takeValues)
+
+    {remainNils,_} = Enum.split(fistsNils,Enum.count(fistsNils) - nilsToRemain)
+
+    newFirst = firstValues ++ takeValues ++ remainNils
+
+    if remainValues == [] do
+      {false,List.delete_at(list,lastWithValueIndex) |> List.replace_at(firstWithNilIndex,newFirst)}
+    else
+      {false, List.replace_at(list,lastWithValueIndex,remainValues) |> List.replace_at(firstWithNilIndex,newFirst)}
+    end
+  end
+
+end
+
+def solveBlockCompacting(list) do
+  {solved,list2} = performBlockMoveStep(list)
+  if solved do
+    list
+  else
+    solveBlockCompacting(list2)
+  end
+end
+
+def getChecksum(list) do
+  list |> Enum.with_index() |> Enum.map(fn {id,idx} -> if id == nil do 0 else id*idx end end) |> Enum.sum()
+end
 
 
 
+def parseDay9Input(input) do
+
+  blocks = Regex.scan(~r/\d/,input) |> Enum.map(fn [v] -> String.to_integer(v) end)
+
+  {dataBlocks, emptyBlocks} = Enum.with_index(blocks) |> Enum.split_with(fn {_,idx} -> rem(idx,2) == 0 end)
+
+  dataBlocksLists = Enum.with_index(dataBlocks) |> Enum.map(fn {{size,idx},id} -> {idx,List.duplicate(id,size)} end)
+  emptyBlocksLists = emptyBlocks |> Enum.map(fn {size,idx} -> {idx,List.duplicate(nil,size)}  end)
+
+  Enum.sort_by(dataBlocksLists++emptyBlocksLists,fn {idx,_} -> idx end, :asc) |> Enum.map(fn {_,b} -> b end) |> Enum.filter(fn v -> v != [] end)
+
+end
+
+def getCompactedChecksum(input) do
+  getChecksum(List.flatten(solveBlockCompacting(parseDay9Input(input))))
+end
+
+def performFileMoveStep(list) do
+  lastMoveableFileIndex = Enum.find_index(Enum.reverse(list), fn {values,tried} -> !tried && Enum.all?(values,fn v -> v != nil end) end)
+
+  if lastMoveableFileIndex == nil do
+    #tried moving them all
+    {true, list}
+  else
+    lastMoveableFileIndex = Enum.count(list) - 1 - lastMoveableFileIndex
+    {lastMoveableFile,_} = Enum.at(list,lastMoveableFileIndex)
 
 
+    firstEmptyLargeEnoughIndex = Enum.find_index(list, fn {values,_} -> Enum.count(values,fn v -> v == nil end) >= Enum.count(lastMoveableFile)  end)
+
+    if firstEmptyLargeEnoughIndex == nil || firstEmptyLargeEnoughIndex > lastMoveableFileIndex do
+      {false, List.replace_at(list,lastMoveableFileIndex,{lastMoveableFile,true})}
+    else
+      {firstEmptyLargeEnough,_} = Enum.at(list,firstEmptyLargeEnoughIndex)
+
+      {valuesNotNilInEmpty,nilInEmpty} = Enum.split_with(firstEmptyLargeEnough, fn v -> v != nil end)
+
+      {_,remainingNils} = Enum.split(nilInEmpty,Enum.count(lastMoveableFile))
+
+      filledEmpty = valuesNotNilInEmpty ++ lastMoveableFile ++ remainingNils
+
+      {false, List.replace_at(list,firstEmptyLargeEnoughIndex,{filledEmpty,Enum.count(remainingNils) == 0}) |> List.replace_at(lastMoveableFileIndex,{List.duplicate(nil,Enum.count(lastMoveableFile)),false})}
+
+    end
+  end
+end
+
+def solveFileCompacting(list) do
+  {solved,list2} = performFileMoveStep(list)
+  if solved do
+    list
+  else
+    solveFileCompacting(list2)
+  end
+end
+
+
+def getFileCompactedChecksum(input) do
+  blocks = parseDay9Input(input)
+  getChecksum(solveFileCompacting(blocks |> Enum.zip(List.duplicate(false,Enum.count(blocks)))) |> Enum.flat_map(fn {v,_} -> v end) )
+end
 
 end

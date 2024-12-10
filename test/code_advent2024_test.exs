@@ -137,6 +137,12 @@ MXMXAXMASX",
       "final2" => 34
     }
 
+    day9Test = %{
+      "input" => "2333133121414131402",
+      "final" => 1928,
+      "final2" => 2858
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -147,7 +153,8 @@ MXMXAXMASX",
     day5Test: day5Test,
     day6Test: day6Test,
     day7Test: day7Test,
-    day8Test: day8Test}
+    day8Test: day8Test,
+    day9Test: day9Test,}
   end
 
   test "test day 1 distance between lists", context do
@@ -380,6 +387,54 @@ o.a
 
   test "test day 8 part 2 final", context do
     assert CodeAdvent2024.countAntinodesHarmonicsForInput(context[:day8Test]["input"]) == context[:day8Test]["final2"]
+  end
+
+  test "test day 9 parse input" do
+    assert CodeAdvent2024.parseDay9Input("12345") == [[0], [nil, nil], [1, 1, 1], [nil, nil, nil, nil], [2, 2, 2, 2, 2]]
+  end
+
+  test "test day 9 solver" do
+    assert CodeAdvent2024.performBlockMoveStep([[0], [nil, nil], [1, 1, 1], [nil, nil, nil, nil], [2, 2, 2, 2]]) == {false, [[0], [2, 2], [1, 1, 1], [nil, nil, nil, nil], [2, 2]]}
+    assert CodeAdvent2024.performBlockMoveStep([[0], [2, nil], [1, 1, 1], [nil, nil, nil, nil], [3, 3, 3, 3]]) == {false, [[0], [2, 3], [1, 1, 1], [nil, nil, nil, nil], [3, 3, 3]]}
+    assert CodeAdvent2024.performBlockMoveStep([[0], [2, 3], [1, 1, 1], [nil, nil, nil, nil], [3, 3, 3]]) == {false, [[0], [2, 3], [1, 1, 1], [3, 3, 3, nil]]}
+
+
+    assert CodeAdvent2024.performBlockMoveStep([[0], [2, 3], [1, 1, 1], [3, 3, 3, nil]]) == {true, [[0], [2, 3], [1, 1, 1], [3, 3, 3, nil]]}
+
+    assert CodeAdvent2024.solveBlockCompacting([[0], [nil, nil], [1, 1, 1], [nil, nil, nil, nil], [2, 2, 2, 2]]) == [[0], [2, 2], [1, 1, 1], [2, 2, nil, nil]]
+    assert CodeAdvent2024.solveBlockCompacting([[0], [2, nil], [1, 1, 1], [nil, nil, nil, nil], [3, 3, 3, 3]]) == [[0], [2, 3], [1, 1, 1], [3, 3, 3, nil]]
+
+  end
+
+  test "test day 9 checksum" do
+    assert CodeAdvent2024.getChecksum([0,2, 2,1, 1, 1 ,2, 2, nil, nil]) == 44
+  end
+
+  test "test day 9 part 1 final", context do
+    assert CodeAdvent2024.getCompactedChecksum(context[:day9Test]["input"]) == context[:day9Test]["final"]
+  end
+
+  test "test day 9 part 2 solver" do
+    assert CodeAdvent2024.performFileMoveStep([{[0],false}, {[2, nil, nil,nil],false}, {[1, 1, 1],false}, {[nil, nil, nil, nil],false}, {[3],false}]) == {false, [{[0], false}, {[2, 3, nil, nil], false}, {[1, 1, 1], false}, {[nil, nil, nil, nil], false}, {[nil], false}]}
+
+    assert CodeAdvent2024.performFileMoveStep([{[0],false}, {[nil, nil, nil,nil],false}, {[1, 1],false}, {[2],false}, {[3],false}]) == {false, [{[0], false}, {[3, nil, nil, nil], false}, {[1, 1], false}, {[2], false}, {[nil], false}]}
+
+    assert CodeAdvent2024.performFileMoveStep([{[0],false}, {[1, 1, 2,3],true}, {[nil],false}, {[nil],false}, {[nil],false}]) == {false, [{[0], true}, {[1, 1, 2, 3], true}, {[nil], false}, {[nil], false}, {[nil], false}]}
+    assert CodeAdvent2024.performFileMoveStep([{[0],true}, {[1, 1, 2,3],true}, {[nil],false}, {[nil],false}, {[nil],false}]) == {true, [{[0], true}, {[1, 1, 2, 3], true}, {[nil], false}, {[nil], false}, {[nil], false}]}
+
+    assert CodeAdvent2024.performFileMoveStep([{[0],false},{[nil,nil],false},{[2,2],false}]) == {false, [{[0], false}, {[2, 2], true}, {[nil, nil], false}]}
+    assert CodeAdvent2024.performFileMoveStep([{[0], false}, {[2, 2], true}, {[nil, nil], false}]) == {false, [{[0], true}, {[2, 2], true}, {[nil, nil], false}]}
+    assert CodeAdvent2024.performFileMoveStep([{[0], true}, {[2, 2], true}, {[nil, nil], false}]) == {true, [{[0], true}, {[2, 2], true}, {[nil, nil], false}]}
+
+    assert CodeAdvent2024.solveFileCompacting([{[0],false},{[nil,nil],false},{[2,2],false}]) == [{[0], true}, {[2, 2], true}, {[nil, nil], false}]
+
+    assert CodeAdvent2024.solveFileCompacting([{[0],false},{[nil,nil],false},{[2],false},{[3],false}]) == [{[0], true}, {[3, 2], true}, {[nil], false}, {[nil], false}]
+
+  end
+
+  #@tag :skip
+  test "test day 9 part 2 final", context do
+    assert CodeAdvent2024.getFileCompactedChecksum(context[:day9Test]["input"]) == context[:day9Test]["final2"]
   end
 
 end
