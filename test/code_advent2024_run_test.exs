@@ -150,7 +150,7 @@ defmodule CodeAdvent2024Run do
   @tag :skip
   test "day 11 part 1",%{test: name} do
     path = File.cwd!()<>"/test/resources/day11.txt"
-    IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(File.read!(path)),25))}"
+    #IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(File.read!(path)),25))}"
   end
 
   #@tag :skip

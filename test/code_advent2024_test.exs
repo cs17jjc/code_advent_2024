@@ -524,10 +524,6 @@ o.a
 
   end
 
-  test "day 11 part 1 next stones" do
-    assert CodeAdvent2024.getNextStones([0,1,10,99,999]) == [1,2024,1,0,9,9,2021976]
-  end
-
   test "day 11 part 1 stones after n blinks", context do
     assert CodeAdvent2024.stonesAfterNBlinks([0,1,10,99,999],1) == [1,2024,1,0,9,9,2021976]
 

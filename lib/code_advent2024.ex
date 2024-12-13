@@ -678,28 +678,25 @@ end
 
 #day 11
 
+def nextNumber(0), do: [1]
 def nextNumber(number) do
   nString = Integer.to_string(number)
   len = String.length(nString)
-  case number do
-    0 -> [1]
-    _ when rem(len, 2) == 0 -> Tuple.to_list(String.split_at(nString,div(len,2))) |> Enum.map(&String.to_integer/1)
-    _ -> [number * 2024]
-  end
-end
 
-def getNextStones(stones) do
-  stones |> Enum.flat_map(&nextNumber/1)
+  if rem(len, 2) == 0 do
+    {left, right} = String.split_at(nString, div(len, 2))
+    [String.to_integer(left), String.to_integer(right)]
+  else
+    [number * 2024]
+  end
 end
 
 def parseDay11input(input) do
   String.split(input) |> Enum.map(&String.to_integer/1)
 end
 
-def stonesAfterNBlinks(stones, 0), do: stones
-
 def stonesAfterNBlinks(stones, blinks) do
-  stonesAfterNBlinks(getNextStones(stones), blinks - 1)
+  Enum.reduce(1..blinks,stones,fn _,currentStones -> Enum.flat_map(currentStones, &nextNumber/1) end )
 end
 
 
