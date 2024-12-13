@@ -153,7 +153,13 @@ MXMXAXMASX",
 01329801
 10456732",
 
-      "final" => 36
+      "final" => 36,
+      "final2" => 81
+    }
+
+    day11Test = %{
+      "input" => "125 17",
+      "final" => 55312
     }
 
     {:ok,
@@ -168,7 +174,9 @@ MXMXAXMASX",
     day7Test: day7Test,
     day8Test: day8Test,
     day9Test: day9Test,
-    day10Test: day10Test,}
+    day10Test: day10Test,
+    day11Test: day11Test,
+  }
   end
 
   test "test day 1 distance between lists", context do
@@ -479,12 +487,59 @@ o.a
       {0,3,8},{1,3,9},{2,3,7},
     ]
     assert CodeAdvent2024.isAdjacent(0,3,2,2) == false
-    assert CodeAdvent2024.getNextPointsInPath(map,[{1, 2, 8}, {0, 3, 8}]) == [{2, 2, 9}, {1, 3, 9}, {1, 3, 9}]
+    assert CodeAdvent2024.getNextPointsInPath(map,[{1, 2, 8}, {0, 3, 8}]) == [{2, 2, 9}, {1, 3, 9}]
     assert CodeAdvent2024.solvePathFor(map,[{0,0,1}],[]) == [{2, 2, 9}, {1, 3, 9}]
   end
 
   test "test day 10 part 1 final", context do
     assert CodeAdvent2024.sumOfAllTrailheadScores(context[:day10Test]["input"]) == context[:day10Test]["final"]
+  end
+
+  test "test day 10 part 2 next points" do
+    map = [
+      {0,0,1},{1,0,2},{2,0,3},
+      {0,1,6},{1,1,5},{2,1,4},
+      {0,2,7},{1,2,8},{2,2,9},
+      {0,3,8},{1,3,9},{2,3,7},
+    ]
+    assert CodeAdvent2024.getNextPointsInPathBacktracking(map,[{0,0,1,nil}]) == [{1, 0, 2, 0}]
+    assert CodeAdvent2024.getNextPointsInPathBacktracking(map,[{1,2,8,nil},{0,3,8,nil}]) == [{2, 2, 9, 0}, {1, 3, 9, 0}, {1, 3, 9, 1}]
+
+  end
+
+  test "test day 10 part 2 solve", context do
+    assert CodeAdvent2024.solveRatingFor(CodeAdvent2024.parseDay10Input(context[:day10Test]["input"])[:map],[[{2,0,0,nil}]]) == 20
+    assert CodeAdvent2024.solveRatingFor(CodeAdvent2024.parseDay10Input(context[:day10Test]["input"])[:map],[[{4,0,0,nil}]]) == 24
+
+  end
+
+  test "test day 10 part 2 final", context do
+    assert CodeAdvent2024.sumOfAllTrailRatings(context[:day10Test]["input"]) == context[:day10Test]["final2"]
+  end
+
+  test "day 11 part 1 next number" do
+    assert CodeAdvent2024.nextNumber(0) == [1]
+    assert CodeAdvent2024.nextNumber(1) == [2024]
+    assert CodeAdvent2024.nextNumber(10) == [1,0]
+
+  end
+
+  test "day 11 part 1 next stones" do
+    assert CodeAdvent2024.getNextStones([0,1,10,99,999]) == [1,2024,1,0,9,9,2021976]
+  end
+
+  test "day 11 part 1 stones after n blinks", context do
+    assert CodeAdvent2024.stonesAfterNBlinks([0,1,10,99,999],1) == [1,2024,1,0,9,9,2021976]
+
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),1) == [253000,1,7]
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),2) == [253, 0, 2024, 14168]
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6) == [2097446912, 14168, 4048, 2, 0, 2, 4, 40, 48, 2024, 40, 48, 80, 96, 2, 8, 6, 7, 6, 0, 3, 2]
+
+  end
+
+  test "day 11 part 1 final", context do
+    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6)) == 22
+    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),25)) == 55312
   end
 
 end

@@ -621,7 +621,7 @@ def isAdjacent(x1,y1,x2,y2) do
 end
 
 def getNextPointsInPath(map, path) do
-  Enum.flat_map(path, fn {x1,y1,h1} -> Enum.filter(map, fn {x2,y2,h2} -> isAdjacent(x1,y1,x2,y2) && (h2 == h1+1)  end) end)
+  Enum.flat_map(path, fn {x1,y1,h1} -> Enum.filter(map, fn {x2,y2,h2} -> isAdjacent(x1,y1,x2,y2) && (h2 == h1+1)  end) end) |> Enum.uniq
 end
 
 def solvePathFor(map,path,ends) do
@@ -654,5 +654,53 @@ def sumOfAllTrailheadScores(input) do
   %{map: map, heads: heads} = parseDay10Input(input)
   Enum.map(heads, fn h -> getHeadScore(map,h) end) |> Enum.sum()
 end
+
+def getNextPointsInPathBacktracking(map, path) do
+  Enum.with_index(path)
+  |> Enum.flat_map(fn {{x1,y1,h1,_},idx} -> Enum.filter(map, fn {x2,y2,h2} -> isAdjacent(x1,y1,x2,y2) && (h2 == h1+1)  end) |> Enum.map( fn {x,y,h} -> {x,y,h,idx} end) end)
+end
+
+
+def solveRatingFor(map,path) do
+  nextPath = getNextPointsInPathBacktracking(map,List.first(path))
+
+  if nextPath == [] do
+    Enum.count(List.first(path))
+  else
+    solveRatingFor(map,[nextPath] ++ path)
+  end
+end
+
+def sumOfAllTrailRatings(input) do
+  %{map: map, heads: heads} = parseDay10Input(input)
+  Enum.map(heads, fn {x,y,h} -> solveRatingFor(map,[[{x,y,h,nil}]]) end) |> Enum.sum()
+end
+
+#day 11
+
+def nextNumber(number) do
+  nString = Integer.to_string(number)
+  len = String.length(nString)
+  case number do
+    0 -> [1]
+    _ when rem(len, 2) == 0 -> Tuple.to_list(String.split_at(nString,div(len,2))) |> Enum.map(&String.to_integer/1)
+    _ -> [number * 2024]
+  end
+end
+
+def getNextStones(stones) do
+  stones |> Enum.flat_map(&nextNumber/1)
+end
+
+def parseDay11input(input) do
+  String.split(input) |> Enum.map(&String.to_integer/1)
+end
+
+def stonesAfterNBlinks(stones, 0), do: stones
+
+def stonesAfterNBlinks(stones, blinks) do
+  stonesAfterNBlinks(getNextStones(stones), blinks - 1)
+end
+
 
 end

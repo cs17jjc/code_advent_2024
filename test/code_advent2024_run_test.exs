@@ -135,10 +135,28 @@ defmodule CodeAdvent2024Run do
     IO.puts " #{name} answer: #{CodeAdvent2024.getFileCompactedChecksum(File.read!(path))}"
   end
 
-  #@tag :skip
+  @tag :skip
   test "day 10 part 1",%{test: name} do
     path = File.cwd!()<>"/test/resources/day10.txt"
     IO.puts " #{name} answer: #{CodeAdvent2024.sumOfAllTrailheadScores(File.read!(path))}"
+  end
+
+  @tag :skip
+  test "day 10 part 2",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day10.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.sumOfAllTrailRatings(File.read!(path))}"
+  end
+
+  @tag :skip
+  test "day 11 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day11.txt"
+    IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(File.read!(path)),25))}"
+  end
+
+  #@tag :skip
+  test "day 11 part 2",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day11.txt"
+    IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(File.read!(path)),75))}"
   end
 
 end
