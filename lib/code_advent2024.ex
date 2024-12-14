@@ -1,5 +1,7 @@
 defmodule CodeAdvent2024 do
 
+  use Memoize
+
   #day 1
   def distanceBetweenTwoLists(a,b) do
     aSorted = Enum.sort(a)
@@ -697,6 +699,23 @@ end
 
 def stonesAfterNBlinks(stones, blinks) do
   Enum.reduce(1..blinks,stones,fn _,currentStones -> Enum.flat_map(currentStones, &nextNumber/1) end )
+end
+
+def stonesCountAfterNBlinks(stone, blinks) do
+  Enum.reduce(1..blinks,[stone],fn _,currentStones -> Enum.flat_map(currentStones, &nextNumber/1) end ) |> Enum.count()
+end
+
+defmemo blinkStoneMemoized(_stone, 0), do: 1
+
+defmemo blinkStoneMemoized(stone, blinks) do
+  case nextNumber(stone) do
+    [new_stone] -> blinkStoneMemoized(new_stone, blinks - 1)
+    parts when is_list(parts) -> Enum.sum(Enum.map(parts, fn p -> blinkStoneMemoized(p, blinks - 1) end))
+  end
+end
+
+def stonesAfterNBlinks2(stones, blinks) do
+  stones |> Enum.map(fn s -> blinkStoneMemoized(s,blinks) end) |> Enum.sum()
 end
 
 

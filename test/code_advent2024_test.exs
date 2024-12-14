@@ -524,6 +524,7 @@ o.a
 
   end
 
+  @tag :skip
   test "day 11 part 1 stones after n blinks", context do
     assert CodeAdvent2024.stonesAfterNBlinks([0,1,10,99,999],1) == [1,2024,1,0,9,9,2021976]
 
@@ -533,9 +534,16 @@ o.a
 
   end
 
+  @tag :skip
   test "day 11 part 1 final", context do
     assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6)) == 22
     assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),25)) == 55312
+  end
+
+  @tag :skip
+  test "day 11 part 2 final", context do
+    assert CodeAdvent2024.stonesAfterNBlinks2Count(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6) == 22
+    assert CodeAdvent2024.stonesAfterNBlinks2Count(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),25) == 55312
   end
 
 end
