@@ -693,7 +693,7 @@ def nextNumber(number) do
   end
 end
 
-def parseDay11input(input) do
+def parseDay11Input(input) do
   String.split(input) |> Enum.map(&String.to_integer/1)
 end
 
@@ -716,6 +716,88 @@ end
 
 def stonesAfterNBlinks2(stones, blinks) do
   stones |> Enum.map(fn s -> blinkStoneMemoized(s,blinks) end) |> Enum.sum()
+end
+
+#day 12
+
+def parseDay12Input(input) do
+  lineSplit = Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
+  width = Enum.at(lineSplit,0) |> String.length()
+
+  Enum.with_index(lineSplit)
+  |> Enum.map(fn {line,lineY} -> {lineY, Enum.with_index(String.codepoints(line)) }end)
+  |> Enum.flat_map(fn {y,xList} -> Enum.map(xList, fn {char,x} -> {x,y,char} end) end)
+  |> Enum.sort_by(fn {x,y,_} -> x + (y*width) end, :asc)
+
+end
+
+def isAdjacentCount(map, x1,y1,c1) do
+  Enum.count(map, fn {x2,y2,c2} -> isAdjacent(x1,y1,x2,y2) && c1 == c2 end)
+end
+
+def createGroups({x1,y1,c1},acc) do
+  if Map.has_key?(acc,c1) do
+    foundGroupings = Map.get(acc,c1)
+    foundGroupsWithAdjacent = foundGroupings |> Enum.filter(fn group -> Enum.any?(group,fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2) end) end)
+    if foundGroupsWithAdjacent == [] do
+      Map.put(acc,c1,[[{x1,y1,c1}]] ++ foundGroupings)
+    else
+      newGroup = Enum.reduce([[{x1,y1,c1}]] ++ foundGroupsWithAdjacent, fn a,b -> a++b end) #is there no better way?
+
+      Map.put(acc,c1, [newGroup] ++ Enum.filter(foundGroupings, fn fg -> !Enum.member?(foundGroupsWithAdjacent,fg) end) )
+    end
+  else
+    Map.put(acc,c1,[[{x1,y1,c1}]])
+  end
+end
+
+def groupsStats(group) do
+  perim = group |> Enum.map(fn {x1,y1,_} -> 4 - Enum.count(group, fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2) end) end) |> Enum.sum()
+  {Enum.count(group), perim}
+end
+
+def priceRegions(map) do
+  Map.values(List.foldl(map, %{}, &createGroups/2)) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&groupsStats/1) |> Enum.map(fn {a,p} -> a*p end) |> Enum.sum()
+end
+
+def kms(group) do
+  width = Enum.map(group, fn {x,_,_} -> x end) |> Enum.max()
+  height = Enum.map(group, fn {_,y,_} -> y end) |> Enum.max()
+
+  Enum.to_list(0..width) |> Enum.map(fn x2 -> List.foldl(Enum.filter(group,fn {x1,_,_} -> x1 == x2 end),[],&createSides/2) end)
+
+end
+
+def createSides({x1,y1,c1},acc) do
+
+
+  adjSides = acc |> Enum.filter(fn side -> Enum.any?(side,fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2)  end) end)
+
+  xSide = adjSides |> Enum.filter(fn side -> Enum.all?(side, fn {x2,_,_} -> x2 == x1 end) end )
+  ySide = adjSides |> Enum.filter(fn side -> Enum.all?(side, fn {_,y2,_} -> y2 == y1 end) end )
+
+  newSides = case {xSide,ySide} do
+    {[],[]} -> [[{x1,y1,c1}]]
+    {xS,[]} -> [Enum.reduce([[{x1,y1,c1}]] ++ xS, fn a,b -> a++b end)]
+    {[],yS} -> [Enum.reduce([[{x1,y1,c1}]] ++ yS, fn a,b -> a++b end)]
+    {xS,yS} -> [Enum.reduce([[{x1,y1,c1}]] ++ xS, fn a,b -> a++b end)] ++ [Enum.reduce([[{x1,y1,c1}]] ++ yS, fn a,b -> a++b end)]
+  end
+
+  (acc |> Enum.filter(fn side -> !Enum.member?(xSide,side) && !Enum.member?(ySide,side)  end)) ++ newSides
+
+end
+
+def countSides(group) do
+  perimeter = Enum.filter(group, fn {x1,y1,_} -> Enum.count(group, fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2) end) < 4  end)
+  List.foldl(perimeter,[],&createSides/2) |> Enum.count()
+end
+
+def groupsStatsSides(group) do
+  {Enum.count(group), countSides(group)}
+end
+
+def priceRegionsSides(map) do
+  Map.values(List.foldl(map, %{}, &createGroups/2)) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&groupsStatsSides/1) |> Enum.map(fn {a,p} -> a*p end) |> Enum.sum()
 end
 
 

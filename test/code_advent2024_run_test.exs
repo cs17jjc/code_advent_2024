@@ -150,13 +150,19 @@ defmodule CodeAdvent2024Run do
   @tag :skip
   test "day 11 part 1",%{test: name} do
     path = File.cwd!()<>"/test/resources/day11.txt"
-    IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(File.read!(path)),25))}"
+    IO.puts " #{name} answer: #{Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(File.read!(path)),25))}"
   end
 
   @tag :skip
   test "day 11 part 2",%{test: name} do
     path = File.cwd!()<>"/test/resources/day11.txt"
-    IO.puts " #{name} answer: #{CodeAdvent2024.stonesAfterNBlinks2(CodeAdvent2024.parseDay11input(File.read!(path)),75)}"
+    IO.puts " #{name} answer: #{CodeAdvent2024.stonesAfterNBlinks2(CodeAdvent2024.parseDay11Input(File.read!(path)),75)}"
+  end
+
+  @tag :skip
+  test "day 12 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day12.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(File.read!(path)))}"
   end
 
 end

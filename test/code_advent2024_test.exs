@@ -162,6 +162,21 @@ MXMXAXMASX",
       "final" => 55312
     }
 
+    day12Test = %{
+      "input" => "RRRRIICCFF
+RRRRIICCCF
+VVRRRCCFFF
+VVRCCCJFFF
+VVVVCJJCFE
+VVIVCCJJEE
+VVIIICJJEE
+MIIIIIJJEE
+MIIISIJEEE
+MMMISSJEEE",
+      "final" => 1930,
+      "final2" => 1206
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -176,6 +191,7 @@ MXMXAXMASX",
     day9Test: day9Test,
     day10Test: day10Test,
     day11Test: day11Test,
+    day12Test: day12Test,
   }
   end
 
@@ -524,26 +540,56 @@ o.a
 
   end
 
-  @tag :skip
   test "day 11 part 1 stones after n blinks", context do
     assert CodeAdvent2024.stonesAfterNBlinks([0,1,10,99,999],1) == [1,2024,1,0,9,9,2021976]
 
-    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),1) == [253000,1,7]
-    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),2) == [253, 0, 2024, 14168]
-    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6) == [2097446912, 14168, 4048, 2, 0, 2, 4, 40, 48, 2024, 40, 48, 80, 96, 2, 8, 6, 7, 6, 0, 3, 2]
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),1) == [253000,1,7]
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),2) == [253, 0, 2024, 14168]
+    assert CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),6) == [2097446912, 14168, 4048, 2, 0, 2, 4, 40, 48, 2024, 40, 48, 80, 96, 2, 8, 6, 7, 6, 0, 3, 2]
 
   end
 
-  @tag :skip
   test "day 11 part 1 final", context do
-    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6)) == 22
-    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),25)) == 55312
+    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),6)) == 22
+    assert Enum.count(CodeAdvent2024.stonesAfterNBlinks(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),25)) == 55312
+  end
+
+  test "day 11 part 2 final", context do
+    assert CodeAdvent2024.stonesAfterNBlinks2(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),6) == 22
+    assert CodeAdvent2024.stonesAfterNBlinks2(CodeAdvent2024.parseDay11Input(context[:day11Test]["input"]),25) == 55312
+  end
+
+
+  test "test day 12 part 1 group stats" do
+    assert CodeAdvent2024.groupsStats([{2, 3, "A"}, {1, 3, "A"}, {0, 3, "A"}]) == {3, 8}
+    assert CodeAdvent2024.groupsStats([{3, 0, "A"}, {2, 0, "A"}, {1, 0, "A"}, {0, 0, "A"}]) == {4, 10}
+    assert CodeAdvent2024.groupsStats([{1, 2, "B"}, {0, 2, "B"}, {1, 1, "B"}, {0, 1, "B"}]) == {4, 8}
+    assert CodeAdvent2024.groupsStats([{3, 3, "C"}, {3, 2, "C"}, {2, 2, "C"}, {2, 1, "C"}]) == {4, 10}
+    assert CodeAdvent2024.groupsStats([{3, 1, "D"}]) == {1, 4}
+  end
+
+  test "test day 12 part 1 pricing" do
+    map = "AAAA
+BBCD
+BBCC
+EEEC"
+    assert CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(map)) == 140
+    map = "OOOOO
+OXOXO
+OOOOO
+OXOXO
+OOOOO"
+    assert CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(map)) == 772
+  end
+
+
+  test "test day 12 part 1 final", context do
+    assert CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(context[:day12Test]["input"])) == context[:day12Test]["final"]
   end
 
   @tag :skip
-  test "day 11 part 2 final", context do
-    assert CodeAdvent2024.stonesAfterNBlinks2Count(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),6) == 22
-    assert CodeAdvent2024.stonesAfterNBlinks2Count(CodeAdvent2024.parseDay11input(context[:day11Test]["input"]),25) == 55312
+  test "test day 12 part 2 final", context do
+    assert CodeAdvent2024.priceRegionsSides(CodeAdvent2024.parseDay12Input(context[:day12Test]["input"])) == context[:day12Test]["final2"]
   end
 
 end
