@@ -1,6 +1,7 @@
 defmodule CodeAdvent2024 do
 
   use Memoize
+  alias Nx
 
   #day 1
   def distanceBetweenTwoLists(a,b) do
@@ -760,44 +761,28 @@ def priceRegions(map) do
   Map.values(List.foldl(map, %{}, &createGroups/2)) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&groupsStats/1) |> Enum.map(fn {a,p} -> a*p end) |> Enum.sum()
 end
 
-def kms(group) do
-  width = Enum.map(group, fn {x,_,_} -> x end) |> Enum.max()
-  height = Enum.map(group, fn {_,y,_} -> y end) |> Enum.max()
+#day 13
 
-  Enum.to_list(0..width) |> Enum.map(fn x2 -> List.foldl(Enum.filter(group,fn {x1,_,_} -> x1 == x2 end),[],&createSides/2) end)
-
-end
-
-def createSides({x1,y1,c1},acc) do
-
-
-  adjSides = acc |> Enum.filter(fn side -> Enum.any?(side,fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2)  end) end)
-
-  xSide = adjSides |> Enum.filter(fn side -> Enum.all?(side, fn {x2,_,_} -> x2 == x1 end) end )
-  ySide = adjSides |> Enum.filter(fn side -> Enum.all?(side, fn {_,y2,_} -> y2 == y1 end) end )
-
-  newSides = case {xSide,ySide} do
-    {[],[]} -> [[{x1,y1,c1}]]
-    {xS,[]} -> [Enum.reduce([[{x1,y1,c1}]] ++ xS, fn a,b -> a++b end)]
-    {[],yS} -> [Enum.reduce([[{x1,y1,c1}]] ++ yS, fn a,b -> a++b end)]
-    {xS,yS} -> [Enum.reduce([[{x1,y1,c1}]] ++ xS, fn a,b -> a++b end)] ++ [Enum.reduce([[{x1,y1,c1}]] ++ yS, fn a,b -> a++b end)]
+def getPresses({targetX,targetY},{buttonAx,buttonAy},{buttonBx,buttonBy}) do
+  [a,b] = Nx.LinAlg.solve(Nx.tensor([[buttonAx, buttonBx], [buttonAy, buttonBy]]), Nx.tensor([targetX, targetY])) |> Nx.round() |> Nx.to_list()
+  if buttonAx*a + buttonBx*b == targetX &&  buttonAy*a + buttonBy*b == targetY do
+    {:found, trunc(a), trunc(b)}
+  else
+    {:not_found, nil, nil}
   end
-
-  (acc |> Enum.filter(fn side -> !Enum.member?(xSide,side) && !Enum.member?(ySide,side)  end)) ++ newSides
-
 end
 
-def countSides(group) do
-  perimeter = Enum.filter(group, fn {x1,y1,_} -> Enum.count(group, fn {x2,y2,_} -> isAdjacent(x1,y1,x2,y2) end) < 4  end)
-  List.foldl(perimeter,[],&createSides/2) |> Enum.count()
+def parseDay13Input(input) do
+  machineSplit = Regex.split(~r/\n\n/,Regex.replace(~r/\r/,input,""), trim: true)
+  machineParameters = machineSplit |> Enum.map(fn s -> Regex.scan(~r/\d+/,s) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&String.to_integer/1) end)
+  machineParameters |> Enum.map(fn [ax,ay,bx,by,tx,ty] -> %{target: {tx,ty}, a: {ax,ay}, b: {bx,by}} end)
 end
 
-def groupsStatsSides(group) do
-  {Enum.count(group), countSides(group)}
-end
-
-def priceRegionsSides(map) do
-  Map.values(List.foldl(map, %{}, &createGroups/2)) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&groupsStatsSides/1) |> Enum.map(fn {a,p} -> a*p end) |> Enum.sum()
+def minimumTokensAllMachines(machineParameters) do
+  machineParameters
+  |> Enum.map(fn params -> getPresses(params[:target],params[:a],params[:b]) end)
+  |> Enum.filter(fn {isFound,_,_} -> isFound == :found end)
+  |> Enum.map(fn {_,a,b} -> (3*a) + b end) |> Enum.sum()
 end
 
 

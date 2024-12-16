@@ -165,4 +165,10 @@ defmodule CodeAdvent2024Run do
     IO.puts " #{name} answer: #{CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(File.read!(path)))}"
   end
 
+  @tag :skip
+  test "day 13 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day13.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.minimumTokensAllMachines(CodeAdvent2024.parseDay13Input(File.read!(path)))}"
+  end
+
 end

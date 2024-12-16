@@ -177,6 +177,26 @@ MMMISSJEEE",
       "final2" => 1206
     }
 
+    day13Test = %{
+      "input" => "Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=12748, Y=12176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=7870, Y=6450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=18641, Y=10279",
+
+      "final" => 480
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -192,6 +212,7 @@ MMMISSJEEE",
     day10Test: day10Test,
     day11Test: day11Test,
     day12Test: day12Test,
+    day13Test: day13Test,
   }
   end
 
@@ -586,10 +607,30 @@ OOOOO"
   test "test day 12 part 1 final", context do
     assert CodeAdvent2024.priceRegions(CodeAdvent2024.parseDay12Input(context[:day12Test]["input"])) == context[:day12Test]["final"]
   end
-
   @tag :skip
-  test "test day 12 part 2 final", context do
-    assert CodeAdvent2024.priceRegionsSides(CodeAdvent2024.parseDay12Input(context[:day12Test]["input"])) == context[:day12Test]["final2"]
+  test "test day 13 part 1 get minimum presses" do
+    assert CodeAdvent2024.getPresses({8400,5400},{94,34},{22,67}) == {:found,80,40}
+    assert CodeAdvent2024.getPresses({12748,12176},{26,66},{67,21}) == {:not_found, nil, nil}
+    assert CodeAdvent2024.getPresses({7870,6450},{17,86},{84,37}) == {:found,38,86}
+    assert CodeAdvent2024.getPresses({18641,10279},{69,23},{27,71}) == {:not_found, nil, nil}
+  end
+
+  test "test day 13 part 1 parse input", context do
+    assert CodeAdvent2024.parseDay13Input(context[:day13Test]["input"]) == [
+      %{a: {94, 34}, b: {22, 67}, target: {8400, 5400}},
+      %{a: {26, 66}, b: {67, 21}, target: {12748, 12176}},
+      %{a: {17, 86}, b: {84, 37}, target: {7870, 6450}},
+      %{a: {69, 23}, b: {27, 71}, target: {18641, 10279}}
+    ]
+  end
+  @tag :skip
+  test "test day 13 part 1 final", context do
+    assert CodeAdvent2024.minimumTokensAllMachines(CodeAdvent2024.parseDay13Input(context[:day13Test]["input"])) == context[:day13Test]["final"]
+  end
+
+  test "test day 13 part 2 get minimum presses" do
+    CodeAdvent2024.getPresses({8400 + 10000000000000,5400 + 10000000000000},{94,34},{22,67})
+    CodeAdvent2024.getPresses({12748 + 10000000000000,12176 + 10000000000000},{26,66},{67,21})
   end
 
 end
