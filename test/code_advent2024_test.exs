@@ -197,6 +197,23 @@ Prize: X=18641, Y=10279",
       "final" => 480
     }
 
+    day14Test = %{
+      "input" => "p=0,4 v=3,-3
+p=6,3 v=-1,-3
+p=10,3 v=-1,2
+p=2,0 v=2,-1
+p=0,0 v=1,3
+p=3,0 v=-2,-2
+p=7,6 v=-1,-3
+p=3,0 v=-1,-2
+p=9,3 v=2,3
+p=7,3 v=-1,2
+p=2,4 v=2,-3
+p=9,5 v=-3,-3",
+
+      "final" => 12
+    }
+
     {:ok,
     day1Part1Test: day1Part1Test,
     day2Part1Test: day2Part1Test,
@@ -213,6 +230,8 @@ Prize: X=18641, Y=10279",
     day11Test: day11Test,
     day12Test: day12Test,
     day13Test: day13Test,
+    day14Test: day14Test,
+
   }
   end
 
@@ -631,6 +650,52 @@ OOOOO"
   test "test day 13 part 2 get minimum presses" do
     CodeAdvent2024.getPresses({8400 + 10000000000000,5400 + 10000000000000},{94,34},{22,67})
     CodeAdvent2024.getPresses({12748 + 10000000000000,12176 + 10000000000000},{26,66},{67,21})
+  end
+
+  test "test day 14 part 1 move robot" do
+    assert CodeAdvent2024.moveRobot({0,0,1,1},10,10) == {1,1,1,1}
+    assert CodeAdvent2024.moveRobot({9,0,1,0},10,10) == {0,0,1,0}
+    assert CodeAdvent2024.moveRobot({0,9,0,1},10,10) == {0,0,0,1}
+    assert CodeAdvent2024.moveRobot({9,0,3,0},10,10) == {2,0,3,0}
+    assert CodeAdvent2024.moveRobot({0,9,0,3},10,10) == {0,2,0,3}
+    assert CodeAdvent2024.moveRobot({1,1,-3,-3},10,10) == {8,8,-3,-3}
+  end
+
+  test "test day 14 part 1 parse input", context do
+    assert CodeAdvent2024.parseDay14Input(context[:day14Test]["input"]) == [
+      {0, 4, 3, -3},
+      {6, 3, -1, -3},
+      {10, 3, -1, 2},
+      {2, 0, 2, -1},
+      {0, 0, 1, 3},
+      {3, 0, -2, -2},
+      {7, 6, -1, -3},
+      {3, 0, -1, -2},
+      {9, 3, 2, 3},
+      {7, 3, -1, 2},
+      {2, 4, 2, -3},
+      {9, 5, -3, -3}
+    ]
+  end
+
+  test "test day 14 part 1 get quadrant" do
+    assert CodeAdvent2024.getQuadrant({0,0,nil,nil},3,3) == "TL"
+    assert CodeAdvent2024.getQuadrant({2,0,nil,nil},3,3) == "TR"
+    assert CodeAdvent2024.getQuadrant({0,2,nil,nil},3,3) == "BL"
+    assert CodeAdvent2024.getQuadrant({2,2,nil,nil},3,3) == "BR"
+    assert CodeAdvent2024.getQuadrant({1,1,nil,nil},3,3) == nil
+  end
+
+  test "test day 14 part 1 move robots" do
+    robots = [{2,4,2,-3}]
+    assert CodeAdvent2024.moveRobotsNSeconds(robots,11,7,1) == [{4,1,2,-3}]
+    assert CodeAdvent2024.moveRobotsNSeconds(robots,11,7,2) == [{6,7-2,2,-3}]
+    assert CodeAdvent2024.moveRobotsNSeconds(robots,11,7,5) == [{1,3,2,-3}]
+  end
+
+  test "test day 14 part 1 final", context  do
+    robots = CodeAdvent2024.parseDay14Input(context[:day14Test]["input"])
+    assert CodeAdvent2024.calcSafetyFactor(CodeAdvent2024.moveRobotsNSeconds(robots,11,7,100),11,7) == 12
   end
 
 end

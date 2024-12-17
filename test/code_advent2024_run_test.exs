@@ -171,4 +171,17 @@ defmodule CodeAdvent2024Run do
     IO.puts " #{name} answer: #{CodeAdvent2024.minimumTokensAllMachines(CodeAdvent2024.parseDay13Input(File.read!(path)))}"
   end
 
+  @tag :skip
+  test "day 14 part 1",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day14.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.safteyFactorAfterNSeconds(File.read!(path),101,103,100)}"
+  end
+
+  #@tag :skip
+  test "day 14 part 2",%{test: name} do
+    path = File.cwd!()<>"/test/resources/day14.txt"
+    IO.puts " #{name} answer: #{CodeAdvent2024.christmassTreeFrame(File.read!(path),101,103,1)}"
+  end
+
+
 end

@@ -785,5 +785,78 @@ def minimumTokensAllMachines(machineParameters) do
   |> Enum.map(fn {_,a,b} -> (3*a) + b end) |> Enum.sum()
 end
 
+#day 14
+
+def parseDay14Input(input) do
+  lineSplit = Regex.split(~r/\n/,Regex.replace(~r/\r/,input,""), trim: true)
+  lineSplit
+  |> Enum.map(fn line -> Regex.scan(~r/-?\d+/, line) |> Enum.flat_map(&Function.identity/1) |> Enum.map(&String.to_integer/1) end)
+  |> Enum.map(fn [x,y,vx,vy] -> {x,y,vx,vy} end)
+end
+
+def moveRobot({x,y,vx,vy},maxX,maxY) do
+
+  newX = case x + vx do
+    nx when nx >= maxX -> nx - maxX
+    nx when nx < 0 -> maxX + nx
+    nx -> nx
+  end
+
+  newY = case y + vy do
+    ny when ny >= maxY -> ny - maxY
+    ny when ny < 0 -> maxY + ny
+    ny -> ny
+  end
+
+  {newX,newY,vx,vy}
+end
+
+def getQuadrant({x, y, _, _}, width, height) do
+  midX = div(width, 2)
+  midY = div(height, 2)
+
+  case {x, y} do
+    {x, y} when x < midX and y < midY -> "TL"
+    {x, y} when x > midX and y < midY -> "TR"
+    {x, y} when x < midX and y > midY -> "BL"
+    {x, y} when x > midX and y > midY -> "BR"
+    _ -> nil
+  end
+end
+
+def calcSafetyFactor(robots,width,height) do
+  grouped = robots |> Enum.group_by(fn r -> getQuadrant(r,width,height) end)
+  Enum.count(grouped["TL"]) * Enum.count(grouped["TR"]) * Enum.count(grouped["BL"]) * Enum.count(grouped["BR"])
+end
+
+def moveRobotsNSeconds(robots,_,_,0), do: robots
+def moveRobotsNSeconds(robots,width,height,seconds) do
+  moveRobotsNSeconds(Enum.map(robots,fn r -> moveRobot(r,width,height) end),width,height,seconds-1)
+end
+
+def safteyFactorAfterNSeconds(input,width,height,seconds) do
+  robots = CodeAdvent2024.parseDay14Input(input)
+  CodeAdvent2024.calcSafetyFactor(CodeAdvent2024.moveRobotsNSeconds(robots,width,height,seconds),width,height)
+end
+
+def centreDensity(robots,width,height) do
+  left = width*0.25
+  top = height*0.25
+  right = width*1.25
+  bottom = height*1.25
+
+  Enum.count(robots,fn {x,y,_,_} -> x > left && x < right && y > top && y < bottom end)
+end
+
+def christmassTreeFrame(input,width,height,frames) do
+  robots = CodeAdvent2024.parseDay14Input(input)
+
+  Stream.unfold(robots, fn rs -> {rs,Enum.map(rs,fn r -> moveRobot(r,width,height) end)} end)
+  |> Stream.map(fn rs -> centreDensity(rs, width, height) end)
+  |> Stream.with_index()
+  |> Stream.reject(fn {density,_} -> density < 400 end)
+  |> Stream.take(frames) |> Enum.sort_by(fn {d,_} -> d end,:desc) |> List.first() |> elem(1)
+end
+
 
 end
